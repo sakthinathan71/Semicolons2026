@@ -51,8 +51,17 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   const [isSimulating, setIsSimulating] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
+  // Cleanup interval on unmount
+  React.useEffect(() => {
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [intervalId]);
+
   const triggerMockEvent = useCallback(() => {
     const activeCompetitors = brands.filter(b => b.isCompetitor);
+    if (activeCompetitors.length === 0) return;
+    
     const randomBrand = activeCompetitors[Math.floor(Math.random() * activeCompetitors.length)].name;
     
     const events = [
@@ -79,7 +88,7 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
       prediction: hasPrediction ? {
         event: "Potential Price Adjustment",
         probability: Math.floor(65 + Math.random() * 25),
-        timeframe: "48-72h"
+        timeframe: "24-48h"
       } : undefined,
       socialMetrics: isSocial ? {
         views: `${(Math.random() * 10).toFixed(1)}M`,
