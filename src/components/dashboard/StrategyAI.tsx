@@ -10,13 +10,39 @@ interface StrategyAIProps {
 export default function StrategyAI({ signals }: StrategyAIProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [briefReady, setBriefReady] = useState(false);
+  const [briefData, setBriefData] = useState<any>(null);
 
-  const generateBrief = () => {
+  const generateBrief = async () => {
     setIsGenerating(true);
-    setTimeout(() => {
-      setIsGenerating(false);
+    try {
+      const res = await fetch('/api/generate-brief', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signals: signals.slice(0, 10) }) // Send recent signals
+      });
+      
+      if (!res.ok) throw new Error("Failed to generate brief");
+      
+      const data = await res.json();
+      setBriefData(data);
       setBriefReady(true);
-    }, 3000);
+    } catch (err) {
+      console.error(err);
+      // Fallback in case of error
+      setBriefData({
+        summary: "Error generating brief. Using static fallback.",
+        threat_level: "High",
+        strategic_recommendation: {
+          action: "Review System Connection",
+          details: "API connection failed.",
+          rationale: "Network error or API limit reached."
+        },
+        kpi_impact: "Unknown"
+      });
+      setBriefReady(true);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const downloadReport = () => {
@@ -31,18 +57,37 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
       doc.setFontSize(16);
       doc.text("Market Intelligence Summary", 20, 50);
       doc.setFontSize(12);
-      let y = 60;
-      signals.slice(0, 5).forEach((s) => {
-        doc.text(`- ${s.brand}: ${s.event} (${s.category})`, 20, y);
-        y += 10;
-      });
+      
+      // Dynamic summary from AI
+      const splitSummary = doc.splitTextToSize(briefData?.summary || "No summary available.", 170);
+      doc.text(splitSummary, 20, 60);
+      
+      let y = 60 + (splitSummary.length * 7);
+      
+      doc.setFontSize(14);
+      doc.text(`Threat Level: ${briefData?.threat_level || 'Unknown'}`, 20, y);
+      y += 10;
 
       doc.setFontSize(16);
       doc.text("Strategic Recommendations", 20, y + 10);
-      doc.setFontSize(12);
-      doc.text("1. Maintain premium pricing despite competitor pressure.", 20, y + 20);
-      doc.text("2. Accelerate key category drops based on sentiment velocity.", 20, y + 30);
+      y += 20;
       
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "bold");
+      doc.text(`Action: ${briefData?.strategic_recommendation?.action || 'N/A'}`, 20, y);
+      y += 8;
+      
+      doc.setFont("helvetica", "normal");
+      const splitDetails = doc.splitTextToSize(briefData?.strategic_recommendation?.details || "No details.", 170);
+      doc.text(splitDetails, 20, y);
+      y += (splitDetails.length * 7);
+      
+      const splitRationale = doc.splitTextToSize(`Rationale: ${briefData?.strategic_recommendation?.rationale || "N/A"}`, 170);
+      doc.text(splitRationale, 20, y);
+      y += (splitRationale.length * 7);
+      
+      doc.text(`KPI Impact: ${briefData?.kpi_impact || 'N/A'}`, 20, y + 5);
+
       doc.save("LuxeLens_Strategy_Brief.pdf");
     } catch (error) {
       console.error("Failed to generate PDF:", error);
