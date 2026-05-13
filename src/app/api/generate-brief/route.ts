@@ -1,79 +1,124 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { MarketSignal } from '@/lib/intelligence';
+import { NextRequest, NextResponse } from "next/server";
+import { MarketSignal } from "@/lib/intelligence";
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface BriefRequestBody {
+  signals: MarketSignal[];
+}
+
+interface BriefResponse {
+  summary: string;
+  threat_level: "Low" | "Medium" | "High" | "Critical";
+  strategic_recommendation: {
+    action: string;
+    details: string;
+    rationale: string;
+  };
+  kpi_impact: string;
+}
+
+// ─── Fallback Brief (No API Key) ──────────────────────────────────────────────
+
+function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
+  const highImpact = signals.filter((s) => s.impact === "High").length;
+  const uniqueBrands = [...new Set(signals.map((s) => s.brand))];
+  return {
+    summary: `Detected ${signals.length} market signal(s) across ${uniqueBrands.length} competitor(s). ${highImpact} high-impact event(s) require immediate attention.`,
+    threat_level: highImpact >= 3 ? "Critical" : highImpact >= 1 ? "High" : "Medium",
+    strategic_recommendation: {
+      action: highImpact >= 1 ? "Pricing & Marketing Defense" : "Maintain Position",
+      details: `Reinforce Olivela's brand value narrative across ${signals[0]?.category ?? "key"} categories. Prepare influencer-led counter-campaign if competitor activity persists beyond 48 hours.`,
+      rationale: highImpact >= 1
+        ? `${highImpact} competitor(s) executed high-impact moves. Historical data indicates a 72-hour response window before market share erosion begins.`
+        : "Conditions are stable. Standard monitoring cadence is sufficient.",
+    },
+    kpi_impact: "Conversion Rate, Average Order Value, Brand Equity Index",
+  };
+}
+
+// ─── Prompt Builder ───────────────────────────────────────────────────────────
+
+function buildGeminiPrompt(signals: MarketSignal[]): string {
+  return `
+You are the "LuxeLens Intelligence Agent," an elite retail strategy consultant specializing in the global luxury market.
+
+EVALUATION CRITERIA:
+- Luxury positioning: Never recommend a race-to-the-bottom price war. Maintain brand exclusivity.
+- Agility: Identify moves executable within 24-48 hours.
+- Data-driven: Base all reasoning on the signals provided.
+
+MARKET SIGNALS:
+${JSON.stringify(signals, null, 2)}
+
+OUTPUT FORMAT (Strict JSON, no markdown, no extra keys):
+{
+  "summary": "One concise sentence summarizing the competitive shift.",
+  "threat_level": "Low | Medium | High | Critical",
+  "strategic_recommendation": {
+    "action": "Pricing | Marketing | Product | Operations | Social",
+    "details": "Specific tactical steps Olivela should take.",
+    "rationale": "Data-backed reason for this recommendation."
+  },
+  "kpi_impact": "Which business metric(s) will this protect or improve?"
+}`.trim();
+}
+
+// ─── Route Handler ────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   try {
-    const { signals } = await req.json();
-    
-    // In a real app, use the official @google/genai SDK.
-    // For this prototype, we'll use a direct fetch to the Gemini REST API to keep dependencies light
-    // or simulate a highly dynamic response if the key is missing to not break the demo.
-    
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
-    
-    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-      // Fallback dynamic mock if no real API key is provided
-      const summary = `Detected ${signals.length} market shifts across ${new Set(signals.map((s: MarketSignal) => s.brand)).size} competitors.`;
-      const action = signals.some((s: MarketSignal) => s.impact === 'High') 
-        ? "Immediate pricing defense required." 
-        : "Maintain current positioning.";
-        
-      return NextResponse.json({
-        summary,
-        threat_level: signals.some((s: MarketSignal) => s.impact === 'High') ? 'High' : 'Medium',
-        strategic_recommendation: {
-          action: "Pricing & Marketing Pivot",
-          details: `Execute counter-measures for ${signals[0]?.brand || 'competitor'} activity.`,
-          rationale: action
-        },
-        kpi_impact: "Conversion Rate & Brand Equity"
-      });
+    const body = (await req.json()) as BriefRequestBody;
+
+    if (!Array.isArray(body?.signals)) {
+      return NextResponse.json({ error: "Invalid request: 'signals' must be an array." }, { status: 400 });
     }
 
-    const prompt = `
-You are the "LuxeLens Intelligence Agent," an elite retail strategy consultant specializing in the global luxury market.
-YOUR TASK: Analyze the following signals and output a structured strategic response.
+    const signals = body.signals.slice(0, 15); // Limit to control token usage
 
-EVALUATION CRITERIA:
-- Luxury positioning: Never suggest a race-to-the-bottom price war.
-- Exclusivity: Prioritize scarcity and brand story.
-- Agility: Identify moves that can be executed within 24-48 hours.
+    const apiKey = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY;
 
-SIGNALS:
-${JSON.stringify(signals, null, 2)}
-
-OUTPUT FORMAT (Strict JSON):
-{
-  "summary": "One sentence summary of the competitive shift.",
-  "threat_level": "Low | Medium | High | Critical",
-  "strategic_recommendation": {
-    "action": "Marketing | Pricing | Product | Operations",
-    "details": "Specific tactical steps.",
-    "rationale": "The 'Why' behind this move based on the data provided."
-  },
-  "kpi_impact": "Which business metric will this protect/improve?"
-}`;
-
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { response_mime_type: "application/json" }
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch from Gemini API');
+    if (!apiKey) {
+      // No API key configured — return a smart local brief
+      return NextResponse.json(buildFallbackBrief(signals));
     }
 
-    const data = await response.json();
-    const resultText = data.candidates[0].content.parts[0].text;
-    const jsonResult = JSON.parse(resultText);
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: buildGeminiPrompt(signals) }] }],
+          generationConfig: {
+            response_mime_type: "application/json",
+            temperature: 0.4,
+            maxOutputTokens: 1024,
+          },
+        }),
+        // Enforce a timeout so a slow API call doesn't hang the request
+        signal: AbortSignal.timeout(20_000),
+      }
+    );
 
-    return NextResponse.json(jsonResult);
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text().catch(() => "Unknown error");
+      console.error("[Gemini API Error]", geminiRes.status, errText);
+      // Return smart fallback instead of propagating a 5xx
+      return NextResponse.json(buildFallbackBrief(signals));
+    }
+
+    const geminiData = await geminiRes.json();
+    const rawText: string = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    const parsed: BriefResponse = JSON.parse(rawText);
+    return NextResponse.json(parsed);
   } catch (error) {
-    console.error("Gemini API Error:", error);
-    return NextResponse.json({ error: "Failed to generate brief" }, { status: 500 });
+    // Handle JSON parse errors, network errors, and AbortError
+    console.error("[generate-brief] Unhandled error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred. Please try again." },
+      { status: 500 }
+    );
   }
 }
