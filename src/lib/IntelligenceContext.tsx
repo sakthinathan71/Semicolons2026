@@ -9,6 +9,15 @@ import {
   mockInitialSignals,
   SIMULATION_EVENTS,
 } from "@/lib/intelligence";
+import {
+  PRIMARY_BRAND_LOWER,
+  MAX_SIGNALS,
+  MAX_RECOMMENDATIONS,
+  SIMULATION_INTERVAL_MS,
+} from "@/lib/constants";
+import { createLogger } from "@/lib/logger";
+
+const logger = createLogger("IntelligenceContext");
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,9 +61,9 @@ const INITIAL_RECOMMENDATIONS: AIRecommendation[] = [
   },
 ];
 
-const SIMULATION_INTERVAL_MS = 3000;
-const MAX_SIGNALS = 50;
-const MAX_RECOMMENDATIONS = 5;
+
+
+
 
 // ─── Context Setup ────────────────────────────────────────────────────────────
 
@@ -79,11 +88,12 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
 
   const triggerMockEvent = useCallback(() => {
     const activeCompetitors = brandsRef.current.filter(
-      (b) => b.isCompetitor && b.name.toLowerCase() !== "olivela"
+      (b) => b.isCompetitor && b.name.toLowerCase() !== PRIMARY_BRAND_LOWER
     );
 
     // Gracefully stop simulation if no competitors are configured
     if (activeCompetitors.length === 0) {
+      logger.warn("Simulation stopped: no active competitors configured");
       setIsSimulating(false);
       return;
     }

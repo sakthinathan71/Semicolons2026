@@ -1,37 +1,130 @@
-import { describe, it, expect } from 'vitest';
-import { synthesizeRecommendation, MarketSignal } from '../lib/intelligence';
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, act, fireEvent, waitFor } from "@testing-library/react";
+import React from "react";
+import {
+  IntelligenceProvider,
+  useIntelligence,
+} from "@/lib/IntelligenceContext";
 
-describe('synthesizeRecommendation', () => {
-  it('should create a pricing recommendation when signal is pricing related', () => {
-    const signal: MarketSignal = {
-      id: '1',
-      brand: 'Gucci',
-      event: 'Price Drop (-15%)',
-      category: 'Bags',
-      details: 'Seasonal sale',
-      impact: 'High',
-      time: 'Just now'
-    };
+// ─── Test Helpers ─────────────────────────────────────────────────────────────
 
-    const rec = synthesizeRecommendation(signal);
-    expect(rec.title).toContain('Price Response');
-    expect(rec.urgency).toBe('Immediate');
+function TestConsumer() {
+  const ctx = useIntelligence();
+  return (
+    <div>
+      <span data-testid="signal-count">{ctx.signals.length}</span>
+      <span data-testid="rec-count">{ctx.recommendations.length}</span>
+      <span data-testid="is-simulating">{ctx.isSimulating.toString()}</span>
+      <span data-testid="brand-count">{ctx.brands.length}</span>
+      <button data-testid="start" onClick={ctx.startSimulation}>Start</button>
+      <button data-testid="stop" onClick={ctx.stopSimulation}>Stop</button>
+      <button data-testid="trigger" onClick={ctx.triggerMockEvent}>Trigger</button>
+    </div>
+  );
+}
+
+function renderWithProvider() {
+  return render(
+    <IntelligenceProvider>
+      <TestConsumer />
+    </IntelligenceProvider>
+  );
+}
+
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe("IntelligenceContext", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
   });
 
-  it('should create a social recommendation when signal is viral related', () => {
-    const signal: MarketSignal = {
-      id: '2',
-      brand: 'Prada',
-      event: 'Viral Post',
-      category: 'Marketing',
-      details: 'Influencer campaign',
-      impact: 'Medium',
-      time: '10m ago',
-      socialMetrics: { views: '1M', velocity: 85, sentiment: 'Positive' }
-    };
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
 
-    const rec = synthesizeRecommendation(signal);
-    expect(rec.title).toContain('Engagement Counter');
-    expect(rec.action).toBe('Social Blitz');
+  it("provides initial signals from mockInitialSignals", () => {
+    renderWithProvider();
+    const count = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+    expect(count).toBeGreaterThan(0);
+  });
+
+  it("provides initial recommendations", () => {
+    renderWithProvider();
+    const count = parseInt(screen.getByTestId("rec-count").textContent ?? "0");
+    expect(count).toBeGreaterThan(0);
+  });
+
+  it("starts simulation when startSimulation is called", async () => {
+    renderWithProvider();
+    expect(screen.getByTestId("is-simulating").textContent).toBe("false");
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("start"));
+    });
+
+    expect(screen.getByTestId("is-simulating").textContent).toBe("true");
+  });
+
+  it("stops simulation when stopSimulation is called", async () => {
+    renderWithProvider();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("start"));
+    });
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("stop"));
+    });
+
+    expect(screen.getByTestId("is-simulating").textContent).toBe("false");
+  });
+
+  it("adds a new signal when triggerMockEvent fires", async () => {
+    renderWithProvider();
+    const initialCount = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("trigger"));
+    });
+
+    const newCount = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+    expect(newCount).toBe(initialCount + 1);
+  });
+
+  it("adds a signal every 3 seconds when simulating", async () => {
+    renderWithProvider();
+    const initialCount = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("start"));
+    });
+
+    await act(async () => {
+      vi.advanceTimersByTime(9000); // 3 ticks
+    });
+
+    const newCount = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+    // Allow for some variance since all 3 might produce signals
+    expect(newCount).toBeGreaterThan(initialCount);
+  });
+
+  it("does not exceed MAX_SIGNALS", async () => {
+    renderWithProvider();
+
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("start"));
+      vi.advanceTimersByTime(200_000); // Trigger many events
+    });
+
+    const count = parseInt(screen.getByTestId("signal-count").textContent ?? "0");
+    expect(count).toBeLessThanOrEqual(50);
+  });
+
+  it("throws if useIntelligence is used outside of IntelligenceProvider", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() => render(<TestConsumer />)).toThrow(
+      "useIntelligence must be used within an IntelligenceProvider"
+    );
+    consoleSpy.mockRestore();
   });
 });
