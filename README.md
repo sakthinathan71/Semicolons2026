@@ -26,22 +26,27 @@ Powered by **Gemini 1.5 Pro**, this engine moves beyond data to provide **Strate
 - **One-Click Execution**: Simulates the implementation of AI recommendations (e.g., triggering a marketing pivot).
 - **Predictive Forecasting**: Uses time-series logic to predict a competitor's "Next Move" with 90%+ confidence.
 
-### 📑 4. Executive Strategy Briefing
-Generate a 1-page strategic summary of the week’s market chaos at the touch of a button. Downloadable as a professional PDF for board meetings.
+### 🛡️ 4. Enterprise Security & Hardening
+- **Rate-Limiting Middleware**: Built-in protection against DDoS and automated scraping.
+- **Secure Headers**: Full implementation of CSP, HSTS, and XSS protection.
+- **Input Sanitization**: Robust validation for brand and URL management.
 
-### 🛠️ 5. Brand Portfolio Settings
-Fully customizable configuration. Add/Remove competitors, update storefront URLs, and manage social monitoring handles with ease.
+### 🧪 5. Automated Quality Assurance
+- **Vitest Suite**: Comprehensive unit and integration tests for AI logic and UI components.
+- **Zero Vulnerabilities**: 100% clean `npm audit` report with security overrides.
 
 ---
 
 ## 🛠️ Tech Stack
-- **Framework**: [Next.js 14](https://nextjs.org/) (App Router)
+- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router, Modular Architecture)
 - **Styling**: Tailwind CSS (Custom "Midnight Gold" Luxury Theme)
 - **State Management**: React Context (IntelligenceProvider)
 - **AI/ML**: 
   - **Gemini 1.5 Pro**: Strategic Synthesis & Briefing
   - **Neural Vision Logic**: Visual Similarity Matching
   - **Predictive Engine**: Probabilistic Market Forecasting
+- **Security**: Next.js Middleware (Rate Limiting), Security Headers
+- **Testing**: Vitest, React Testing Library
 - **Components**: Lucide React, Framer Motion (Animations), jsPDF
 
 ---
@@ -64,12 +69,21 @@ Fully customizable configuration. Add/Remove competitors, update storefront URLs
    npm install
    ```
 
-3. Run the development server:
+3. Set up environment:
+   ```bash
+   cp .env.example .env.local
+   # Add your Gemini API key to .env.local
+   ```
+
+4. Run tests:
+   ```bash
+   npm test
+   ```
+
+5. Run the development server:
    ```bash
    npm run dev
    ```
-
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the results.
 
 ---
 
@@ -83,7 +97,8 @@ Fully customizable configuration. Add/Remove competitors, update storefront URLs
 ## 🛣️ Roadmap
 - [ ] **Live Webhooks**: Direct integration with Slack/Teams for "Pulse Alerts."
 - [ ] **Visual SKU Mapping**: Real-world image comparison using pgvector.
-- [ ] **Influencer Overlap**: Analyzing shared audience segments across Instagram.
+- [x] **Security Hardening**: Implementation of rate-limiting and secure headers.
+- [x] **Modular Component System**: Decoupled dashboard architecture for enterprise scaling.
 
 ---
 
