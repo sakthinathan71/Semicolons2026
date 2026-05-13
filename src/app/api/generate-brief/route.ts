@@ -1,24 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { MarketSignal } from "@/lib/intelligence";
+import { createLogger } from "@/lib/logger";
+import { MAX_SIGNALS_PER_BRIEF, GEMINI_TIMEOUT_MS } from "@/lib/constants";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+const logger = createLogger("generate-brief");
 
-interface BriefRequestBody {
-  signals: MarketSignal[];
-}
+// ─── Request / Response Schemas (Zod) ─────────────────────────────────────────
 
-interface BriefResponse {
-  summary: string;
-  threat_level: "Low" | "Medium" | "High" | "Critical";
-  strategic_recommendation: {
-    action: string;
-    details: string;
-    rationale: string;
-  };
-  kpi_impact: string;
-}
+const RequestSchema = z.object({
+  signals: z.array(z.any()).min(0).max(MAX_SIGNALS_PER_BRIEF),
+});
 
-// ─── Fallback Brief (No API Key) ──────────────────────────────────────────────
+const BriefResponseSchema = z.object({
+  summary: z.string(),
+  threat_level: z.enum(["Low", "Medium", "High", "Critical"]),
+  strategic_recommendation: z.object({
+    action: z.string(),
+    details: z.string(),
+    rationale: z.string(),
+  }),
+  kpi_impact: z.string(),
+});
+
+export type BriefResponse = z.infer<typeof BriefResponseSchema>;
+
+// ─── Fallback Brief ───────────────────────────────────────────────────────────
 
 function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
   const highImpact = signals.filter((s) => s.impact === "High").length;
@@ -29,9 +36,10 @@ function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
     strategic_recommendation: {
       action: highImpact >= 1 ? "Pricing & Marketing Defense" : "Maintain Position",
       details: `Reinforce Olivela's brand value narrative across ${signals[0]?.category ?? "key"} categories. Prepare influencer-led counter-campaign if competitor activity persists beyond 48 hours.`,
-      rationale: highImpact >= 1
-        ? `${highImpact} competitor(s) executed high-impact moves. Historical data indicates a 72-hour response window before market share erosion begins.`
-        : "Conditions are stable. Standard monitoring cadence is sufficient.",
+      rationale:
+        highImpact >= 1
+          ? `${highImpact} competitor(s) executed high-impact moves. Historical data indicates a 72-hour response window before market share erosion begins.`
+          : "Conditions are stable. Standard monitoring cadence is sufficient.",
     },
     kpi_impact: "Conversion Rate, Average Order Value, Brand Equity Index",
   };
@@ -39,28 +47,29 @@ function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
 
 // ─── Prompt Builder ───────────────────────────────────────────────────────────
 
-function buildGeminiPrompt(signals: MarketSignal[]): string {
+function buildPrompt(signals: MarketSignal[]): string {
   return `
 You are the "LuxeLens Intelligence Agent," an elite retail strategy consultant specializing in the global luxury market.
 
-EVALUATION CRITERIA:
-- Luxury positioning: Never recommend a race-to-the-bottom price war. Maintain brand exclusivity.
-- Agility: Identify moves executable within 24-48 hours.
-- Data-driven: Base all reasoning on the signals provided.
+RULES:
+- Never recommend price-matching or race-to-the-bottom tactics.
+- Prioritize brand exclusivity and product storytelling.
+- All recommendations must be executable within 24-48 hours.
+- Respond ONLY with valid JSON matching the schema below. No markdown, no prose.
 
 MARKET SIGNALS:
 ${JSON.stringify(signals, null, 2)}
 
-OUTPUT FORMAT (Strict JSON, no markdown, no extra keys):
+OUTPUT SCHEMA (strict JSON):
 {
-  "summary": "One concise sentence summarizing the competitive shift.",
+  "summary": "string — one sentence summary of competitive shift",
   "threat_level": "Low | Medium | High | Critical",
   "strategic_recommendation": {
     "action": "Pricing | Marketing | Product | Operations | Social",
-    "details": "Specific tactical steps Olivela should take.",
-    "rationale": "Data-backed reason for this recommendation."
+    "details": "string — specific tactical steps",
+    "rationale": "string — data-backed reasoning"
   },
-  "kpi_impact": "Which business metric(s) will this protect or improve?"
+  "kpi_impact": "string — which metrics this protects or improves"
 }`.trim();
 }
 
@@ -68,20 +77,30 @@ OUTPUT FORMAT (Strict JSON, no markdown, no extra keys):
 
 export async function POST(req: NextRequest) {
   try {
-    const body = (await req.json()) as BriefRequestBody;
+    // 1. Parse and validate request body
+    const body = await req.json().catch(() => null);
+    const parsed = RequestSchema.safeParse(body);
 
-    if (!Array.isArray(body?.signals)) {
-      return NextResponse.json({ error: "Invalid request: 'signals' must be an array." }, { status: 400 });
+    if (!parsed.success) {
+      logger.warn("Invalid request body", parsed.error.flatten());
+      return NextResponse.json(
+        { error: "Invalid request. 'signals' must be an array." },
+        { status: 400 }
+      );
     }
 
-    const signals = body.signals.slice(0, 15); // Limit to control token usage
+    const signals: MarketSignal[] = parsed.data.signals.slice(0, MAX_SIGNALS_PER_BRIEF);
 
-    const apiKey = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    // 2. Check for API key — server-side only (no NEXT_PUBLIC_ prefix)
+    const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      // No API key configured — return a smart local brief
+      logger.warn("GEMINI_API_KEY not configured — returning fallback brief");
       return NextResponse.json(buildFallbackBrief(signals));
     }
+
+    // 3. Call Gemini API
+    logger.info(`Calling Gemini API with ${signals.length} signals`);
 
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
@@ -89,33 +108,49 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: buildGeminiPrompt(signals) }] }],
+          contents: [{ parts: [{ text: buildPrompt(signals) }] }],
           generationConfig: {
             response_mime_type: "application/json",
             temperature: 0.4,
             maxOutputTokens: 1024,
           },
         }),
-        // Enforce a timeout so a slow API call doesn't hang the request
-        signal: AbortSignal.timeout(20_000),
+        signal: AbortSignal.timeout(GEMINI_TIMEOUT_MS),
       }
     );
 
     if (!geminiRes.ok) {
-      const errText = await geminiRes.text().catch(() => "Unknown error");
-      console.error("[Gemini API Error]", geminiRes.status, errText);
-      // Return smart fallback instead of propagating a 5xx
+      const errText = await geminiRes.text().catch(() => "");
+      logger.error(`Gemini returned ${geminiRes.status}`, errText);
       return NextResponse.json(buildFallbackBrief(signals));
     }
 
+    // 4. Parse and validate Gemini response with Zod
     const geminiData = await geminiRes.json();
     const rawText: string = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
-    const parsed: BriefResponse = JSON.parse(rawText);
-    return NextResponse.json(parsed);
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(rawText);
+    } catch {
+      logger.error("Gemini returned non-JSON response", rawText.slice(0, 200));
+      return NextResponse.json(buildFallbackBrief(signals));
+    }
+
+    const validated = BriefResponseSchema.safeParse(parsedJson);
+    if (!validated.success) {
+      logger.error("Gemini response failed schema validation", validated.error.flatten());
+      return NextResponse.json(buildFallbackBrief(signals));
+    }
+
+    logger.info("Brief generated successfully");
+    return NextResponse.json(validated.data);
   } catch (error) {
-    // Handle JSON parse errors, network errors, and AbortError
-    console.error("[generate-brief] Unhandled error:", error);
+    const isTimeout = error instanceof Error && error.name === "TimeoutError";
+    logger.error(
+      isTimeout ? "Gemini API request timed out" : "Unhandled error in generate-brief",
+      error
+    );
     return NextResponse.json(
       { error: "An unexpected error occurred. Please try again." },
       { status: 500 }
