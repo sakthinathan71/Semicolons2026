@@ -9,12 +9,20 @@ export default function SettingsView() {
   const [newInsta, setNewInsta] = useState("");
 
   const addBrand = () => {
-    if (!newName) return;
+    // Sanitize and validate inputs
+    const sanitizedName = newName.trim().replace(/[<>]/g, "");
+    if (!sanitizedName || sanitizedName.length < 2) return;
+
+    // Simple URL validation
+    const urlPattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    const sanitizedWeb = newWeb.trim().toLowerCase();
+    const sanitizedInsta = newInsta.trim().startsWith("@") ? newInsta.trim() : `@${newInsta.trim()}`;
+
     const newBrand = {
       id: Math.random().toString(36).substr(2, 9),
-      name: newName,
-      website: newWeb || "tbd.com",
-      instagram: newInsta || "@tbd",
+      name: sanitizedName,
+      website: urlPattern.test(sanitizedWeb) ? sanitizedWeb : "invalid-url.com",
+      instagram: sanitizedInsta,
       isCompetitor: true
     };
     setBrands([...brands, newBrand]);
