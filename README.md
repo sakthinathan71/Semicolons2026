@@ -102,4 +102,4 @@ Powered by **Gemini 1.5 Pro**, this engine moves beyond data to provide **Strate
 
 ---
 
-**Designed for the Hackathon by Antigravity AI.**
+**Designed for the Hackathon by LuxeLens AI Team.**
