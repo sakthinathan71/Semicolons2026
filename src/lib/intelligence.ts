@@ -86,6 +86,16 @@ export const mockInitialSignals: MarketSignal[] = [
     prediction: { event: "Market stabilization", probability: 85, timeframe: "7 days" }
   },
   {
+    id: "3",
+    brand: "Gucci",
+    event: "Out of Stock",
+    category: "Footwear",
+    details: "Horsebit loafers sold out globally",
+    impact: "High",
+    time: "1h ago",
+    prediction: { event: "Restock expected", probability: 60, timeframe: "14 days" }
+  },
+  {
     id: "2",
     brand: "Hermès",
     event: "Viral Post",

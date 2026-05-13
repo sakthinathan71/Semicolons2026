@@ -20,6 +20,7 @@ type IntelligenceContextType = {
   startSimulation: () => void;
   stopSimulation: () => void;
   isSimulating: boolean;
+  executeStrategy: (strategy: AIRecommendation) => void;
 };
 
 const IntelligenceContext = createContext<IntelligenceContextType | undefined>(undefined);
@@ -51,20 +52,16 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   const [isSimulating, setIsSimulating] = useState(false);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
-  // Cleanup interval on unmount
-  React.useEffect(() => {
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [intervalId]);
-
   const triggerMockEvent = useCallback(() => {
-    const activeCompetitors = brands.filter(b => b.isCompetitor);
-    if (activeCompetitors.length === 0) return;
+    const activeCompetitors = brands.filter(b => b.isCompetitor && b.name.toLowerCase() !== 'olivela');
+    if (activeCompetitors.length === 0) {
+      setIsSimulating(false);
+      return;
+    }
     
     const randomBrand = activeCompetitors[Math.floor(Math.random() * activeCompetitors.length)].name;
     
-    const events = [
+    const events: Array<{ event: string, category: string, impact: MarketSignal['impact'], details: string }> = [
       { event: "Price Drop (-10%)", category: "Bags", impact: "High", details: "Flash sale detected" },
       { event: "New Drop", category: "Shoes", impact: "Positive", details: "Limited edition release" },
       { event: "Viral Post", category: "Marketing", impact: "Medium", details: "Social engagement spike" },
@@ -82,7 +79,7 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
       event: randomEvent.event,
       category: randomEvent.category,
       details: randomEvent.details,
-      impact: randomEvent.impact as any,
+      impact: randomEvent.impact,
       time: "Just now",
       visualSimilarity: hasSimilarity ? 0.75 + Math.random() * 0.2 : undefined,
       prediction: hasPrediction ? {
@@ -100,25 +97,61 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
     const newRec = synthesizeRecommendation(newSignal);
 
     setSignals(prev => [newSignal, ...prev.slice(0, 9)]);
-    setRecommendations(prev => [newRec, ...prev.slice(0, 4)]);
+    setRecommendations(prev => {
+      // Avoid duplicate recommendations for the same event
+      if (prev.some(r => r.title === newRec.title && r.competitor === newRec.competitor)) return prev;
+      return [newRec, ...prev.slice(0, 4)];
+    });
   }, [brands]);
 
-  const startSimulation = useCallback(() => {
-    if (isSimulating) return;
-    setIsSimulating(true);
-    const id = setInterval(triggerMockEvent, 3000);
-    setIntervalId(id);
+  // Cleanup interval on unmount or when simulation state changes
+  React.useEffect(() => {
+    let id: NodeJS.Timeout | null = null;
+    if (isSimulating) {
+      id = setInterval(() => {
+        triggerMockEvent();
+      }, 3000);
+      setIntervalId(id);
+    }
+    return () => {
+      if (id) clearInterval(id);
+    };
   }, [isSimulating, triggerMockEvent]);
 
+  const startSimulation = useCallback(() => {
+    setIsSimulating(true);
+  }, []);
+
   const stopSimulation = useCallback(() => {
-    if (!isSimulating) return;
     setIsSimulating(false);
-    if (intervalId) clearInterval(intervalId);
-    setIntervalId(null);
-  }, [isSimulating, intervalId]);
+  }, []);
+
+  const executeStrategy = useCallback((strategy: AIRecommendation) => {
+    const newSignal: MarketSignal = {
+      id: Math.random().toString(36).substr(2, 9),
+      brand: "Olivela", // The primary brand executing the strategy
+      event: `Strategy Deployed: ${strategy.action}`,
+      category: "Internal Action",
+      details: `Counter-measure executed against ${strategy.competitor}'s recent activity.`,
+      impact: "Positive",
+      time: "Just now",
+    };
+    
+    setSignals(prev => [newSignal, ...prev.slice(0, 9)]);
+  }, []);
 
   return (
-    <IntelligenceContext.Provider value={{ signals, recommendations, triggerMockEvent, startSimulation, stopSimulation, isSimulating, brands, setBrands }}>
+    <IntelligenceContext.Provider value={{ 
+      signals, 
+      recommendations, 
+      triggerMockEvent, 
+      startSimulation, 
+      stopSimulation, 
+      isSimulating, 
+      brands, 
+      setBrands,
+      executeStrategy
+    }}>
       {children}
     </IntelligenceContext.Provider>
   );

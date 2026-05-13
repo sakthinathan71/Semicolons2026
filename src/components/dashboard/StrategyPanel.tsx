@@ -5,16 +5,18 @@ import { BrainCircuit, ArrowUpRight, Loader2, CheckCircle2 } from "lucide-react"
 import { useIntelligence } from "@/lib/IntelligenceContext";
 
 export default function StrategyPanel() {
-  const { recommendations } = useIntelligence();
+  const { recommendations, executeStrategy } = useIntelligence();
   const [executingId, setExecutingId] = useState<number | null>(null);
   const [completedIds, setCompletedIds] = useState<number[]>([]);
 
   const handleExecute = (id: number) => {
     setExecutingId(id);
+    const rec = recommendations.find(r => r.id === id);
     // Simulate API call to execute strategy
     setTimeout(() => {
       setExecutingId(null);
       setCompletedIds(prev => [...prev, id]);
+      if (rec) executeStrategy(rec);
     }, 2000);
   };
 
