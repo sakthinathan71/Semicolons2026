@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from "react";
 import { Sparkles, Loader2, FileText, Gauge, AlertCircle } from "lucide-react";
-import { jsPDF } from "jspdf";
+// jsPDF is dynamically imported below — only loaded when user clicks Download
 import { MarketSignal } from "@/lib/intelligence";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -51,7 +51,8 @@ function generateFallbackBrief(signals: MarketSignal[]): BriefData {
 
 // ─── PDF Generator ────────────────────────────────────────────────────────────
 
-function downloadPDF(brief: BriefData, signals: MarketSignal[]) {
+async function downloadPDF(brief: BriefData, signals: MarketSignal[]) {
+  const { jsPDF } = await import("jspdf"); // Dynamic import — saves ~300KB from initial bundle
   const doc = new jsPDF();
   const lineHeight = 7;
   let y = 20;

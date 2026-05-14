@@ -1,0 +1,198 @@
+openapi: 3.1.0
+info:
+  title: LuxeLens AI — API Reference
+  description: |
+    Enterprise competitive intelligence API for the LuxeLens AI platform.
+    Provides AI-synthesized strategy briefs and system health monitoring.
+  version: 1.0.0
+  contact:
+    name: LuxeLens AI Team
+servers:
+  - url: http://localhost:3000
+    description: Local development
+  - url: https://your-luxelens-app.vercel.app
+    description: Production
+
+paths:
+  /api/health:
+    get:
+      operationId: getHealth
+      summary: Health Check
+      description: Returns the current operational status of the LuxeLens AI service. Used by load balancers and uptime monitors.
+      tags: [System]
+      responses:
+        "200":
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+
+  /api/generate-brief:
+    post:
+      operationId: generateBrief
+      summary: Generate AI Strategy Brief
+      description: |
+        Accepts a list of live market signals and returns an AI-synthesized strategic
+        brief using Google Gemini 1.5 Pro. Falls back to a locally computed brief if
+        the GEMINI_API_KEY is not configured or the upstream API is unavailable.
+      tags: [AI Intelligence]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BriefRequest"
+            examples:
+              basic:
+                summary: Single price drop signal
+                value:
+                  signals:
+                    - id: "abc123"
+                      brand: "Gucci"
+                      event: "Price Drop (-10%)"
+                      category: "Bags"
+                      details: "Flash sale on Marmont collection"
+                      impact: "High"
+                      time: "Just now"
+      responses:
+        "200":
+          description: Successfully generated brief
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BriefResponse"
+        "400":
+          description: Invalid request — signals array missing or malformed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "403":
+          description: CSRF check failed — request origin not allowed
+        "429":
+          description: Rate limit exceeded
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+              description: Seconds to wait before retrying
+        "500":
+          description: Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [status, service, timestamp, environment, gemini_configured]
+      properties:
+        status:
+          type: string
+          enum: [ok]
+        service:
+          type: string
+          example: "LuxeLens AI"
+        version:
+          type: string
+          example: "0.1.0"
+        timestamp:
+          type: string
+          format: date-time
+        environment:
+          type: string
+          enum: [development, production, test]
+        gemini_configured:
+          type: boolean
+          description: Whether GEMINI_API_KEY is present in the environment
+
+    MarketSignal:
+      type: object
+      required: [id, brand, event, category, details, impact, time]
+      properties:
+        id:
+          type: string
+        brand:
+          type: string
+          example: "Net-a-Porter"
+        event:
+          type: string
+          example: "Price Drop (-10%)"
+        category:
+          type: string
+          example: "Bags"
+        details:
+          type: string
+        impact:
+          type: string
+          enum: [High, Medium, Low, Positive, Neutral]
+        time:
+          type: string
+          example: "Just now"
+        visualSimilarity:
+          type: number
+          minimum: 0
+          maximum: 1
+        prediction:
+          type: object
+          properties:
+            event: { type: string }
+            probability: { type: integer, minimum: 0, maximum: 100 }
+            timeframe: { type: string }
+        socialMetrics:
+          type: object
+          properties:
+            views: { type: string, example: "4.2M" }
+            velocity: { type: integer, minimum: 0, maximum: 100 }
+            sentiment:
+              type: string
+              enum: [Positive, Negative, Mixed]
+
+    BriefRequest:
+      type: object
+      required: [signals]
+      properties:
+        signals:
+          type: array
+          minItems: 0
+          maxItems: 15
+          items:
+            $ref: "#/components/schemas/MarketSignal"
+
+    BriefResponse:
+      type: object
+      required: [summary, threat_level, strategic_recommendation, kpi_impact]
+      properties:
+        summary:
+          type: string
+          description: One-sentence summary of the competitive shift
+        threat_level:
+          type: string
+          enum: [Low, Medium, High, Critical]
+        strategic_recommendation:
+          type: object
+          required: [action, details, rationale]
+          properties:
+            action:
+              type: string
+              enum: [Pricing, Marketing, Product, Operations, Social]
+            details:
+              type: string
+              description: Specific tactical steps to execute
+            rationale:
+              type: string
+              description: Data-backed reasoning for the recommendation
+        kpi_impact:
+          type: string
+          description: Which business metrics this recommendation protects or improves
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "Invalid request. 'signals' must be an array."
