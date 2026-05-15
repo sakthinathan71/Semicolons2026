@@ -1,0 +1,35 @@
+# ─── Build output (regenerated on every build) ───────────────────────────────
+.next
+node_modules
+.turbo
+
+# ─── Test & Coverage output ───────────────────────────────────────────────────
+coverage
+playwright-report
+test-results
+
+# ─── Secrets — NEVER bake env files into a Docker image ──────────────────────
+.env
+.env.local
+.env.development
+.env.production
+.env.*.local
+
+# ─── Editor & OS noise ───────────────────────────────────────────────────────
+.DS_Store
+.idea
+.vscode
+*.log
+
+# ─── Git ──────────────────────────────────────────────────────────────────────
+.git
+.gitignore
+
+# ─── Documentation (not needed at runtime) ────────────────────────────────────
+README.md
+CHANGELOG.md
+docs/
+
+# ─── Docker files themselves ──────────────────────────────────────────────────
+Dockerfile
+.dockerignore
