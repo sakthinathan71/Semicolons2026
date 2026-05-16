@@ -202,12 +202,12 @@ export type SKU = {
 };
 
 export const MOCK_SKUS: SKU[] = [
-  // Our Brand (Olivela / Tata CLiQ Luxury)
-  { id: "o1", brand: "Tata CLiQ Luxury", name: "Signature Silk Saree", category: "Sarees", price: 45000, stock: 12, sku: "OLV-SK-001" },
-  { id: "o2", brand: "Tata CLiQ Luxury", name: "Heritage Polki Necklace", category: "Jewelry", price: 120000, stock: 3, sku: "OLV-JW-042" },
-  { id: "o3", brand: "Tata CLiQ Luxury", name: "Modern Sherwani Black", category: "Sherwanis", price: 65000, stock: 8, sku: "OLV-SH-119" },
-  { id: "o4", brand: "Tata CLiQ Luxury", name: "Bridal Lehenga Crimson", category: "Bridal Couture", price: 250000, stock: 2, sku: "OLV-BC-882" },
-  { id: "o5", brand: "Tata CLiQ Luxury", name: "Velvet Loafers", category: "Footwear", price: 18000, stock: 25, sku: "OLV-FT-990" },
+  // Our Brand (Tata CLiQ Luxury)
+  { id: "o1", brand: "Tata CLiQ Luxury", name: "Signature Banarasi Silk Saree", category: "Sarees", price: 45000, stock: 12, sku: "TCL-SK-001" },
+  { id: "o2", brand: "Tata CLiQ Luxury", name: "Heritage Polki Necklace", category: "Jewelry", price: 120000, stock: 3, sku: "TCL-JW-042" },
+  { id: "o3", brand: "Tata CLiQ Luxury", name: "Modern Zardosi Sherwani", category: "Sherwanis", price: 65000, stock: 8, sku: "TCL-SH-119" },
+  { id: "o4", brand: "Tata CLiQ Luxury", name: "Bridal Lehenga Crimson", category: "Bridal Couture", price: 250000, stock: 2, sku: "TCL-BC-882" },
+  { id: "o5", brand: "Tata CLiQ Luxury", name: "Handcrafted Velvet Juttis", category: "Footwear", price: 18000, stock: 25, sku: "TCL-FT-990" },
 
   // Sabyasachi
   { id: "s1", brand: "Sabyasachi", name: "Heritage Bridal Lehenga", category: "Bridal Couture", price: 380000, stock: 0, sku: "SAB-BC-001" },
@@ -221,9 +221,9 @@ export const MOCK_SKUS: SKU[] = [
   { id: "m1", brand: "Manish Malhotra", name: "Sequin Evening Saree", category: "Sarees", price: 85000, stock: 0, sku: "MM-SK-221" },
   { id: "m2", brand: "Manish Malhotra", name: "Velvet Wedding Sherwani", category: "Sherwanis", price: 110000, stock: 0, sku: "MM-SH-887" },
 
-  // Gucci (New Competitor)
-  { id: "g1", brand: "Gucci", name: "Leather Horsebit Loafers", category: "Footwear", price: 78000, stock: 0, sku: "GUC-FT-001" },
-  { id: "g2", brand: "Gucci", name: "GG Marmont Shoulder Bag", category: "Accessories", price: 125000, stock: 2, sku: "GUC-AC-443" },
+  // Anita Dongre (New Competitor)
+  { id: "g1", brand: "Anita Dongre", name: "Signature Embroidered Mojaris", category: "Footwear", price: 22000, stock: 0, sku: "AD-FT-001" },
+  { id: "g2", brand: "Anita Dongre", name: "Heritage Silk Potli Bag", category: "Accessories", price: 15000, stock: 2, sku: "AD-AC-443" },
 ];
 
 export type SKUMatch = {

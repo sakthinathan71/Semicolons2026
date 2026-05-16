@@ -46,7 +46,7 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
             </div>
             <div className="relative z-10 border-b border-white/10 pb-6">
               <span className="text-[10px] font-black uppercase tracking-widest text-red-400 mb-2 block">Competitor Listing</span>
-              <h2 className="text-2xl font-bold tracking-tighter">Gucci Horsebit Loafer</h2>
+              <h2 className="text-2xl font-bold tracking-tighter">Anita Dongre Signature Mojaris</h2>
               <p className="text-white/40 text-xs font-mono mt-1">ID: {competitorId}</p>
             </div>
             
@@ -57,11 +57,11 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Current Price</span>
-                  <span className="font-mono font-bold text-red-400">₹72,000 (Marked Down)</span>
+                  <span className="font-mono font-bold text-red-400">₹22,000 (Marked Down)</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/50">Color</span>
-                  <span className="font-bold">Black Leather</span>
+                  <span className="text-white/50">Material</span>
+                  <span className="font-bold">Embroidered Silk</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">In Stock</span>
@@ -78,9 +78,9 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
             </div>
             <div className="relative z-10 border-b border-luxury-gold/20 pb-6">
               <span className="text-[10px] font-black uppercase tracking-widest text-luxury-gold mb-2 block">Internal Inventory (Flagship Collection)</span>
-              <h2 className="text-2xl font-bold tracking-tighter text-white">Signature Leather Loafer</h2>
+              <h2 className="text-2xl font-bold tracking-tighter text-white">Handcrafted Velvet Juttis</h2>
               <div className="flex items-center space-x-2 mt-1">
-                <p className="text-luxury-gold/60 text-xs font-mono">SKU: TCL-FT-8842-H</p>
+                <p className="text-luxury-gold/60 text-xs font-mono">SKU: TCL-FT-990</p>
                 <button className="text-luxury-gold hover:text-white transition-colors" aria-label="Copy SKU">
                   <Copy className="w-3 h-3" />
                 </button>
@@ -94,11 +94,11 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Current Price</span>
-                  <span className="font-mono font-bold text-white">₹54,000 (High Margin)</span>
+                  <span className="font-mono font-bold text-white">₹18,000 (High Margin)</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-white/50">Color</span>
-                  <span className="font-bold">Black Leather</span>
+                  <span className="text-white/50">Material</span>
+                  <span className="font-bold">Premium Velvet</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">In Stock</span>
