@@ -93,12 +93,21 @@ export default function ProductDetailPage({ params }: { params: { id: string } }
                   <h3 className="text-xs uppercase tracking-widest font-bold text-white/60">Actionable Actions</h3>
                 </div>
                 <div className="flex flex-col space-y-3 h-full justify-start mt-4">
-                   <button className="bg-white text-luxury-charcoal w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
-                     View Original Listing
-                   </button>
-                   <button className="bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30 w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-luxury-gold/30 transition-colors">
+                   <a 
+                     href="https://www.net-a-porter.com"
+                     target="_blank"
+                     rel="noopener noreferrer"
+                     className="bg-white text-luxury-charcoal w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors flex justify-center items-center space-x-2"
+                   >
+                     <span>View Original Listing</span>
+                     <ExternalLink className="w-3 h-3" />
+                   </a>
+                   <Link 
+                     href={`/match-sku/${productId}`}
+                     className="bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30 w-full py-3 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-luxury-gold/30 transition-colors flex justify-center items-center"
+                   >
                      Match to Own SKU
-                   </button>
+                   </Link>
                 </div>
               </div>
             </div>
