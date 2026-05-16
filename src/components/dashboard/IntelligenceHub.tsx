@@ -33,34 +33,9 @@ function calculateROI(signals: MarketSignal[]) {
 
 export default function IntelligenceHub({ signals, isSimulating }: IntelligenceHubProps) {
   const roi = useMemo(() => calculateROI(signals), [signals]);
-  const criticalSignal = signals.find((s) => s.impact === "High");
 
   return (
     <>
-      {/* ── Threat Takeover Banner ─────────────────────────────────────── */}
-      {criticalSignal && (
-        <div className="fixed top-0 left-0 right-0 z-[100] animate-in slide-in-from-top duration-500">
-          <div className="bg-red-500/95 backdrop-blur-xl border-b border-red-400 px-8 py-4 flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <AlertTriangle className="w-6 h-6 text-white animate-pulse" aria-hidden="true" />
-              <div>
-                <p className="text-white font-black uppercase tracking-widest text-sm">
-                  ⚠ Critical Threat Detected
-                </p>
-                <p className="text-white/80 text-xs">
-                  {criticalSignal.brand} — {criticalSignal.event}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => document.getElementById("strategy-ai-tab")?.click()}
-              className="bg-white text-red-600 font-black px-4 py-2 rounded-full text-xs hover:bg-red-50 transition-colors shadow-lg"
-            >
-              GENERATE COUNTER-STRATEGY NOW →
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* ── ROI Widget ─────────────────────────────────────────────────── */}
       <div className="mb-6 bg-gradient-to-br from-luxury-gold/20 to-luxury-gold/5 border border-luxury-gold/30 rounded-[32px] p-8 shadow-[0_0_40px_rgba(200,160,89,0.1)] relative overflow-hidden group">
