@@ -267,3 +267,49 @@ export function findSKUMatches(brands: BrandConfig[]): SKUMatch[] {
 
   return matches;
 }
+
+/**
+ * Generates a high-fidelity synthetic market signal for the simulation environment.
+ * Uses weighted randomness to produce varied strategic scenarios.
+ */
+export function generateSyntheticSignal(activeBrands: BrandConfig[]): MarketSignal {
+  const activeCompetitors = activeBrands.filter(b => b.isCompetitor);
+  
+  if (activeCompetitors.length === 0) {
+    throw new Error("No active competitors available for simulation.");
+  }
+
+  const randomBrand = activeCompetitors[Math.floor(Math.random() * activeCompetitors.length)].name;
+  const randomEvent = SIMULATION_EVENTS[Math.floor(Math.random() * SIMULATION_EVENTS.length)];
+
+  const hasSimilarity = Math.random() > 0.7;
+  const hasPrediction = Math.random() > 0.6;
+  const isSocial = randomEvent.category === "Marketing" || randomEvent.event.toLowerCase().includes("viral");
+
+  return {
+    id: `sim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    brand: randomBrand,
+    event: randomEvent.event,
+    category: randomEvent.category,
+    details: randomEvent.details,
+    impact: randomEvent.impact,
+    time: "Just now",
+    visualSimilarity: hasSimilarity ? parseFloat((0.75 + Math.random() * 0.2).toFixed(2)) : undefined,
+    prediction: hasPrediction ? {
+      event: "Potential Price Adjustment",
+      probability: Math.floor(65 + Math.random() * 25),
+      timeframe: "24-48h",
+    } : undefined,
+    socialMetrics: isSocial ? {
+      views: `${(Math.random() * 10).toFixed(1)}M`,
+      velocity: Math.floor(70 + Math.random() * 30),
+      sentiment: Math.random() > 0.6 ? "Positive" : Math.random() > 0.5 ? "Mixed" : "Negative",
+      platform: ["TikTok", "Instagram", "Twitter", "Weibo"][Math.floor(Math.random() * 4)] as any,
+      influencer: Math.random() > 0.3 ? {
+        name: ["Emma Chamberlain", "Chiara Ferragni", "Leonnie Hanne", "Alix Earle"][Math.floor(Math.random() * 4)],
+        followers: `${(Math.random() * 20).toFixed(1)}M`
+      } : undefined,
+      keywords: ["#QuietLuxury", "#ArchiveFashion", "#LuxuryHaul", "#MustHave"].sort(() => Math.random() - 0.5).slice(0, 2)
+    } : undefined,
+  };
+}

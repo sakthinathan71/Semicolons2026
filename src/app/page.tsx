@@ -2,7 +2,7 @@
 
 import React, { useState, lazy, Suspense } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Activity, Play, Square, Loader2 } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
 
