@@ -5,12 +5,21 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Factory, Truck, Store, IndianRupee, Calculator, FileWarning, ArrowRight, Save, Send, Sparkles } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
 import { cn } from "@/lib/utils";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export default function ExecuteOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
   const { recommendations } = useIntelligence();
-  const recId = parseInt(resolvedParams.id, 10);
-  const strategy = recommendations.find(r => r.id === recId);
+
+  return (
+    <ErrorBoundary fallback={<div className="min-h-screen bg-luxury-charcoal flex items-center justify-center text-red-400">Protocol Initialization Failed. Please refresh.</div>}>
+       <ExecuteOrderContent recId={resolvedParams.id} recommendations={recommendations} />
+    </ErrorBoundary>
+  );
+}
+
+function ExecuteOrderContent({ recId, recommendations }: { recId: string, recommendations: any[] }) {
+  const strategy = recommendations.find(r => r.id === parseInt(recId));
 
   // Approval Workflow State
   const [approvals, setApprovals] = useState({

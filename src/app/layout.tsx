@@ -14,7 +14,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "LuxeLens AI | Enterprise Competitive Intelligence",
-  description: "Real-time AI-driven strategic advantage for luxury retail brands.",
+  description: "Real-time AI-driven strategic advantage for premium luxury retail brands. Predictive pricing, SKU matching, and market sentiment analysis.",
+  keywords: ["Luxury Retail", "AI Intelligence", "Pricing Strategy", "Competitive Benchmarking"],
+  authors: [{ name: "LuxeLens Engineering" }],
+  openGraph: {
+    title: "LuxeLens AI | Strategic Retail Suite",
+    description: "Enterprise-grade market intelligence for luxury brands.",
+    type: "website",
+    locale: "en_IN",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LuxeLens AI",
+    description: "Real-time AI-driven strategic advantage for luxury retail.",
+  },
 };
 
 import { Providers } from "./Providers";
