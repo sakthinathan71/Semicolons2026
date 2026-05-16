@@ -1,0 +1,46 @@
+# LuxeLens AI: Unified Local Orchestration
+# This file allows you to run both the Frontend and the Backend services together.
+
+version: '3.8'
+
+services:
+  # ─── LuxeLens Intelligence Core (Backend) ──────────────────────────────────
+  backend:
+    build: 
+      context: ../luxelens-backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - FRONTEND_URL=http://localhost:8000
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─── LuxeLens Dashboard (Frontend) ──────────────────────────────────────────
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - PORT=8000
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    restart: always
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
