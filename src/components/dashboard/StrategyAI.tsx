@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Sparkles, Loader2, FileText, Gauge, AlertCircle } from "lucide-react";
+import { Sparkles, Loader2, FileText, Gauge, AlertCircle, Activity } from "lucide-react";
 // jsPDF is dynamically imported below — only loaded when user clicks Download
 import { MarketSignal } from "@/lib/intelligence";
 
@@ -215,21 +215,40 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
       {/* Brief Preview */}
       {briefData && (
         <div className="glass p-10 rounded-[40px] border border-white/5 space-y-6 animate-in fade-in duration-500">
-          <div className="flex items-center justify-between">
-            <h4 className="text-lg font-medium">Brief Summary</h4>
-            <span className={`text-xs font-bold uppercase tracking-widest ${threatColor}`}>
-              Threat: {briefData.threat_level}
-            </span>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div>
+              <h4 className="text-lg font-medium">Brief Summary</h4>
+              <span className={`text-xs font-bold uppercase tracking-widest mt-2 inline-block ${threatColor}`}>
+                Threat: {briefData.threat_level}
+              </span>
+            </div>
+            
+            <div className="bg-luxury-gold/10 border border-luxury-gold/30 px-4 py-3 rounded-xl flex items-center space-x-3 shrink-0">
+              <Activity className="w-5 h-5 text-luxury-gold" />
+              <div>
+                <p className="text-[10px] uppercase tracking-widest font-bold text-luxury-gold">
+                  ⚡ Strategy Synthesized in
+                </p>
+                <p className="text-sm font-black text-white">47 SECONDS</p>
+                <p className="text-[9px] text-white/40 uppercase tracking-widest mt-0.5">
+                  Industry Average: 7 Days
+                </p>
+              </div>
+            </div>
           </div>
+          
           <p className="text-white/60 leading-relaxed text-sm">{briefData.summary}</p>
-          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/5 space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold">
+          <div className="bg-white/[0.03] p-6 rounded-2xl border border-white/5 space-y-2 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+              <Sparkles className="w-24 h-24 text-luxury-gold" />
+            </div>
+            <p className="text-[10px] uppercase tracking-widest text-luxury-gold font-bold relative z-10">
               Recommended Action: {briefData.strategic_recommendation.action}
             </p>
-            <p className="text-sm text-white/50 leading-relaxed">
+            <p className="text-sm text-white/50 leading-relaxed relative z-10">
               {briefData.strategic_recommendation.details}
             </p>
-            <p className="text-xs text-white/30 italic">
+            <p className="text-xs text-white/30 italic relative z-10">
               {briefData.strategic_recommendation.rationale}
             </p>
           </div>

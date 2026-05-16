@@ -28,10 +28,15 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Produces a self-contained build in .next/standalone —
+  // only the runtime-required node_modules are copied in,
+  // which keeps the Docker image lean (no full node_modules needed).
+  output: "standalone",
+
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: securityHeaders,
       },
     ];

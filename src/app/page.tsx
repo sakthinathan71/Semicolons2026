@@ -45,7 +45,7 @@ type TabName =
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export default function Dashboard() {
-  const { signals, startSimulation, stopSimulation, isSimulating } = useIntelligence();
+  const { signals, startSimulation, stopSimulation, startLiveDemo, isSimulating, isDemoing } = useIntelligence();
   const [activeTab, setActiveTab] = useState<TabName>("Intelligence Hub");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -54,7 +54,7 @@ export default function Dashboard() {
   function renderPanel() {
     switch (activeTab) {
       case "Intelligence Hub":
-        return <IntelligenceHub signals={signals} isSimulating={isSimulating} />;
+        return <IntelligenceHub signals={signals} isSimulating={isSimulating || isDemoing} />;
       case "Strategy AI":
         return <StrategyAI signals={signals} />;
       case "Price Watch":
@@ -106,8 +106,18 @@ export default function Dashboard() {
 
           <div className="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-end">
             {showSimulationControls && (
-              <div className="flex items-center">
-                {!isSimulating ? (
+              <div className="flex items-center space-x-3">
+                {!isSimulating && !isDemoing && (
+                  <button
+                    onClick={startLiveDemo}
+                    className="bg-luxury-gold/10 hover:bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center space-x-2 transition-all group shadow-lg"
+                    aria-label="Start scripted live demo"
+                  >
+                    <Play className="w-3.5 h-3.5 fill-luxury-gold group-hover:scale-110 transition-transform" aria-hidden="true" />
+                    <span>▶ Live Demo Mode</span>
+                  </button>
+                )}
+                {!isSimulating && !isDemoing ? (
                   <button
                     onClick={startSimulation}
                     className="bg-green-500/10 hover:bg-green-500/20 text-green-400 border border-green-500/30 px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-widest flex items-center space-x-2 transition-all group shadow-lg"
@@ -126,7 +136,7 @@ export default function Dashboard() {
                     <span>End Simulation</span>
                   </button>
                 )}
-                <div className="h-10 w-[1px] bg-white/10 mx-4 hidden sm:block" aria-hidden="true" />
+                <div className="h-10 w-[1px] bg-white/10 mx-2 hidden sm:block" aria-hidden="true" />
               </div>
             )}
 
@@ -134,14 +144,14 @@ export default function Dashboard() {
             <div
               role="status"
               aria-live="polite"
-              className="bg-white/5 border border-white/10 px-4 py-2 rounded-full flex items-center space-x-3 backdrop-blur-md"
+              className="bg-white/5 border border-white/10 px-4 py-2 rounded-full flex items-center space-x-3 backdrop-blur-md shrink-0"
             >
-              {isSimulating
+              {(isSimulating || isDemoing)
                 ? <Loader2 className="w-4 h-4 text-luxury-gold animate-spin" aria-hidden="true" />
                 : <Activity className="w-4 h-4 text-white/20" aria-hidden="true" />
               }
               <span className="text-[10px] font-bold uppercase tracking-widest text-white/60">
-                {isSimulating ? "AI Pulse Active" : "Feed Paused"}
+                {isDemoing ? "Demo Active" : isSimulating ? "AI Pulse Active" : "Feed Paused"}
               </span>
             </div>
           </div>

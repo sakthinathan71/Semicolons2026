@@ -1,4 +1,6 @@
 import React from "react";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 import { MarketSignal } from "@/lib/intelligence";
 
 interface PriceWatchProps {
@@ -16,10 +18,10 @@ export default function PriceWatch({ signals }: PriceWatchProps) {
             <thead>
               <tr className="bg-white/[0.02] border-b border-white/5 text-white/40">
                 <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Brand</th>
-                <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Signal Type</th>
+                <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Product Item / Model</th>
+                <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Event Type</th>
                 <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Prediction</th>
                 <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Impact</th>
-                <th className="px-10 py-6 text-[10px] uppercase tracking-widest font-black">Time</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -28,9 +30,21 @@ export default function PriceWatch({ signals }: PriceWatchProps) {
                   <tr key={s.id} className="hover:bg-white/[0.03] transition-colors group">
                     <td className="px-10 py-6 font-bold group-hover:text-luxury-gold transition-colors">{s.brand}</td>
                     <td className="px-10 py-6">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-semibold">{s.event}</span>
-                      </div>
+                      <Link 
+                        href={`/product/${s.id}`}
+                        className="group/link flex flex-col items-start"
+                      >
+                        <span className="text-sm font-black text-white flex items-center space-x-2 group-hover/link:text-luxury-gold transition-colors">
+                          <span>{s.category}</span>
+                          <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity" />
+                        </span>
+                        <span className="text-[10px] text-white/40 mt-1 line-clamp-1 group-hover/link:text-white/60">
+                          {s.details}
+                        </span>
+                      </Link>
+                    </td>
+                    <td className="px-10 py-6">
+                      <span className="text-sm font-semibold">{s.event}</span>
                     </td>
                     <td className="px-10 py-6">
                       {s.prediction ? (
@@ -44,7 +58,6 @@ export default function PriceWatch({ signals }: PriceWatchProps) {
                         {s.impact}
                       </span>
                     </td>
-                    <td className="px-10 py-6 text-white/20 text-xs font-mono">{s.time}</td>
                   </tr>
                 ))
               ) : (
