@@ -165,11 +165,13 @@ export default function Dashboard() {
           aria-atomic="false"
           aria-relevant="additions"
         >
-          <ErrorBoundary context={activeTab}>
-            <Suspense fallback={<PanelSkeleton />}>
-              {renderPanel()}
-            </Suspense>
-          </ErrorBoundary>
+          <section className="relative min-h-[60vh]">
+            <ErrorBoundary fallback={<div className="p-8 text-center text-red-400">Failed to load {activeTab} panel.</div>}>
+              <Suspense fallback={<PanelSkeleton />}>
+                {renderPanel()}
+              </Suspense>
+            </ErrorBoundary>
+          </section>
         </div>
       </main>
     </div>
