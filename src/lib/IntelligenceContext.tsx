@@ -235,7 +235,7 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   const executeStrategy = useCallback((strategy: AIRecommendation) => {
     const newSignal: MarketSignal = {
       id: `action-${Date.now()}`,
-      brand: "Olivela",
+      brand: "LuxeLens",
       event: `Strategy Deployed: ${strategy.action}`,
       category: "Internal Action",
       details: `Counter-measure executed against ${strategy.competitor}'s recent activity.`,

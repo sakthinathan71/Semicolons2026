@@ -37,7 +37,7 @@ function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
     threat_level: highImpact >= 3 ? "Critical" : highImpact >= 1 ? "High" : "Medium",
     strategic_recommendation: {
       action: highImpact >= 1 ? "Pricing & Marketing Defense" : "Maintain Position",
-      details: `Reinforce Olivela's brand value narrative across ${signals[0]?.category ?? "key"} categories. Prepare influencer-led counter-campaign if competitor activity persists beyond 48 hours.`,
+      details: `Reinforce our brand value narrative across ${signals[0]?.category ?? "key"} categories. Prepare influencer-led counter-campaign if competitor activity persists beyond 48 hours.`,
       rationale:
         highImpact >= 1
           ? `${highImpact} competitor(s) executed high-impact moves. Historical data indicates a 72-hour response window before market share erosion begins.`

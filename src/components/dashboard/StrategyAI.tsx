@@ -43,7 +43,7 @@ function generateFallbackBrief(signals: MarketSignal[]): BriefData {
         : "No immediate action required. Continue standard monitoring cadence.",
       rationale: highImpact > 0
         ? `${highImpact} competitor(s) executed high-impact moves. Estimated window for response: 24-48 hours.`
-        : "Market signals indicate stable conditions relative to Olivela positioning.",
+        : "Market signals indicate stable conditions relative to our current positioning.",
     },
     kpi_impact: "Conversion Rate, Brand Equity, Market Share",
   };

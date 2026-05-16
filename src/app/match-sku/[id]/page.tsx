@@ -77,10 +77,10 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <Tag className="w-32 h-32 text-luxury-gold" />
             </div>
             <div className="relative z-10 border-b border-luxury-gold/20 pb-6">
-              <span className="text-[10px] font-black uppercase tracking-widest text-luxury-gold mb-2 block">Internal Inventory (Olivela Private Label)</span>
-              <h2 className="text-2xl font-bold tracking-tighter text-white">Olivela Signature Leather Loafer</h2>
+              <span className="text-[10px] font-black uppercase tracking-widest text-luxury-gold mb-2 block">Internal Inventory (Flagship Collection)</span>
+              <h2 className="text-2xl font-bold tracking-tighter text-white">Signature Leather Loafer</h2>
               <div className="flex items-center space-x-2 mt-1">
-                <p className="text-luxury-gold/60 text-xs font-mono">SKU: {olivelaSku}</p>
+                <p className="text-luxury-gold/60 text-xs font-mono">SKU: TCL-FT-8842-H</p>
                 <button className="text-luxury-gold hover:text-white transition-colors" aria-label="Copy SKU">
                   <Copy className="w-3 h-3" />
                 </button>
@@ -133,7 +133,7 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               className="px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors bg-luxury-gold text-luxury-charcoal hover:bg-white flex items-center space-x-2"
             >
               <CheckCircle2 className="w-4 h-4" />
-              <span>Deploy Campaign to Olivela SKU</span>
+              <span>Deploy Campaign to Internal SKU</span>
             </Link>
           </div>
         </div>
