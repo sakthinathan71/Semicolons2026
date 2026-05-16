@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import { BrainCircuit, ArrowUpRight, Loader2, CheckCircle2 } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
 
@@ -78,34 +79,13 @@ export default function StrategyPanel() {
                   </p>
                 </div>
 
-                <button 
-                  onClick={() => !isCompleted && handleExecute(rec.id)}
-                  disabled={isExecuting || isCompleted}
-                  className={`w-full font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-2 uppercase tracking-widest shadow-lg ${
-                    isCompleted 
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/30 cursor-default' 
-                      : isExecuting
-                        ? 'bg-luxury-gold/20 text-luxury-gold border border-luxury-gold/30 cursor-wait'
-                        : 'bg-luxury-gold text-luxury-charcoal hover:bg-white hover:scale-[1.02] active:scale-[0.98]'
-                  }`}
+                <Link 
+                  href={`/execute-order/${rec.id}`}
+                  className={`w-full font-bold py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-2 uppercase tracking-widest shadow-lg bg-luxury-gold text-luxury-charcoal hover:bg-white hover:scale-[1.02] active:scale-[0.98]`}
                 >
-                  {isExecuting ? (
-                    <>
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                      <span>Transmitting Orders...</span>
-                    </>
-                  ) : isCompleted ? (
-                    <>
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Strategy Implemented</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Execute {rec.action}</span>
-                      <ArrowUpRight className="w-3.5 h-3.5" />
-                    </>
-                  )}
-                </button>
+                  <span>Execute {rec.action}</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
               </div>
             );
           })

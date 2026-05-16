@@ -70,10 +70,10 @@ export default function IntelligenceHub({ signals, isSimulating }: IntelligenceH
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <StatCard label="Visual Similarity" value="89.2%" trend="up" sub="Overlap detected" icon={Sparkles} />
-        <StatCard label="Predictive Confidence" value="94%" trend="up" sub="ML Model v2.4" icon={Brain} />
-        <StatCard label="Market Velocity" value={isSimulating ? "High" : "Stable"} trend="up" sub="Live Engagement" icon={Activity} />
-        <StatCard label="Active Alerts" value={signals.length} trend="stable" sub="3 High Impact" icon={BarChart3} />
+        <StatCard label="Visual Similarity" value="89.2%" trend="up" sub="Overlap detected" icon={Sparkles} href="/metrics/visual-similarity" />
+        <StatCard label="Predictive Confidence" value="94%" trend="up" sub="ML Model v2.4" icon={Brain} href="/metrics/predictive-confidence" />
+        <StatCard label="Market Velocity" value={isSimulating ? "High" : "Stable"} trend="up" sub="Live Engagement" icon={Activity} href="/metrics/market-velocity" />
+        <StatCard label="Active Alerts" value={signals.length} trend="stable" sub="3 High Impact" icon={BarChart3} href="/metrics/active-alerts" />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">

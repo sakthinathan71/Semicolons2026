@@ -12,6 +12,7 @@ interface StatCardProps {
   trend: TrendDirection;
   sub: string;
   icon: LucideIcon;
+  href?: string;
 }
 
 // ─── Trend Config ─────────────────────────────────────────────────────────────
@@ -24,16 +25,18 @@ const TREND_CONFIG: Record<TrendDirection, { Icon: LucideIcon; color: string; ar
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+import Link from "next/link";
+
 /**
  * Displays a single KPI metric card.
  * Memoised — only re-renders when its own props change.
  */
-export const StatCard = memo(function StatCard({ label, value, trend, sub, icon: Icon }: StatCardProps) {
+export const StatCard = memo(function StatCard({ label, value, trend, sub, icon: Icon, href }: StatCardProps) {
   const trendConfig = TREND_CONFIG[trend];
 
-  return (
+  const content = (
     <article
-      className="glass p-8 rounded-[40px] border border-white/5 hover:border-luxury-gold/20 transition-all duration-500 group relative overflow-hidden"
+      className="glass p-8 rounded-[40px] border border-white/5 hover:border-luxury-gold/20 transition-all duration-500 group relative overflow-hidden h-full"
       aria-label={`${label}: ${value}`}
     >
       {/* Decorative background icon */}
@@ -65,4 +68,10 @@ export const StatCard = memo(function StatCard({ label, value, trend, sub, icon:
       </div>
     </article>
   );
+
+  return href ? (
+    <Link href={href} className="block h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-luxury-gold rounded-[40px]">
+      {content}
+    </Link>
+  ) : content;
 });
