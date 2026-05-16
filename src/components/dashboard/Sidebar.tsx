@@ -82,7 +82,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
       <aside
         id="sidebar-nav"
         className={cn(
-          "w-64 border-r border-white/5 bg-luxury-charcoal flex flex-col h-screen fixed left-0 top-0 z-50 transition-transform duration-300 lg:translate-x-0",
+          "w-64 border-r border-luxury-slate bg-luxury-charcoal flex flex-col h-screen fixed left-0 top-0 z-50 transition-transform duration-300 lg:translate-x-0",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
         aria-label="Main navigation"
@@ -136,7 +136,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
                 <item.icon
                   className={cn(
                     "w-5 h-5 transition-transform duration-300 group-hover:scale-110 shrink-0",
-                    isActive ? "text-luxury-gold" : "text-white/20 group-hover:text-white"
+                    isActive ? "text-luxury-gold" : "text-dim group-hover:text-primary"
                   )}
                   aria-hidden="true"
                 />
@@ -147,7 +147,7 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
         </nav>
 
         {/* Bottom Actions */}
-        <div className="p-4 border-t border-white/5 space-y-1 bg-white/[0.01]">
+        <div className="p-4 border-t border-luxury-slate space-y-1 bg-luxury-charcoal/20">
           {/* Profile */}
           <button
             ref={(el) => { navButtonRefs.current[NAV_ITEMS.length] = el; }}
@@ -155,14 +155,13 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
             onKeyDown={(e) => handleKeyDown(e, NAV_ITEMS.length)}
             aria-current={activeTab === "Profile" ? "page" : undefined}
             className={cn(
-              "w-full flex items-center space-x-3 transition-all group px-4 py-2.5 rounded-xl text-left",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold",
+              "w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group",
               activeTab === "Profile"
                 ? "bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20"
-                : "text-white/30 hover:text-white hover:bg-white/5"
+                : "text-muted hover:text-primary hover:bg-luxury-slate"
             )}
           >
-            <UserIcon className={cn("w-5 h-5 shrink-0", activeTab === "Profile" ? "text-luxury-gold" : "text-white/20")} />
+            <UserIcon className={cn("w-5 h-5 shrink-0", activeTab === "Profile" ? "text-luxury-gold" : "text-dim")} />
             <span className="text-sm font-medium">Profile</span>
           </button>
 

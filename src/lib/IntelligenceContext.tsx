@@ -74,6 +74,22 @@ const IntelligenceContext = createContext<IntelligenceContextType | undefined>(u
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
 
+type SocialPlatform = "TikTok" | "Instagram" | "Twitter" | "Weibo";
+
+interface SocialMetrics {
+  views: string;
+  velocity: number;
+  sentiment: "Positive" | "Mixed" | "Negative";
+  platform: SocialPlatform;
+  influencer?: {
+    name: string;
+    followers: string;
+  };
+  keywords: string[];
+}
+
+// ─── Provider ─────────────────────────────────────────────────────────────────
+
 export function IntelligenceProvider({ children }: { children: React.ReactNode }) {
   const [brands, setBrands] = useState<BrandConfig[]>(INITIAL_BRANDS);
   const [signals, setSignals] = useState<MarketSignal[]>(mockInitialSignals);
@@ -81,10 +97,8 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   const [isSimulating, setIsSimulating] = useState(false);
   const [isDemoing, setIsDemoing] = useState(false);
 
-  // Use a ref for the interval to avoid stale closures and prevent double-registration in StrictMode
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const demoTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
-  // Use a ref for brands so the interval callback always has the latest value
   const brandsRef = useRef(brands);
 
   useEffect(() => {
@@ -92,70 +106,62 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   }, [brands]);
 
   const triggerMockEvent = useCallback(() => {
-    const activeCompetitors = brandsRef.current.filter(
-      (b) => b.isCompetitor && b.name.toLowerCase() !== PRIMARY_BRAND_LOWER
-    );
-
-    // Gracefully stop simulation if no competitors are configured
-    if (activeCompetitors.length === 0) {
-      logger.warn("Simulation stopped: no active competitors configured");
-      setIsSimulating(false);
-      return;
-    }
-
-    const randomBrand =
-      activeCompetitors[Math.floor(Math.random() * activeCompetitors.length)].name;
-    const randomEvent = SIMULATION_EVENTS[Math.floor(Math.random() * SIMULATION_EVENTS.length)];
-
-    const hasSimilarity = Math.random() > 0.7;
-    const hasPrediction = Math.random() > 0.6;
-    const isSocial =
-      randomEvent.category === "Marketing" || randomEvent.event.toLowerCase().includes("viral");
-
-    const newSignal: MarketSignal = {
-      id: `sim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      brand: randomBrand,
-      event: randomEvent.event,
-      category: randomEvent.category,
-      details: randomEvent.details,
-      impact: randomEvent.impact,
-      time: "Just now",
-      visualSimilarity: hasSimilarity ? parseFloat((0.75 + Math.random() * 0.2).toFixed(2)) : undefined,
-      prediction: hasPrediction
-        ? {
-            event: "Potential Price Adjustment",
-            probability: Math.floor(65 + Math.random() * 25),
-            timeframe: "24-48h",
-          }
-        : undefined,
-      socialMetrics: isSocial
-        ? {
-            views: `${(Math.random() * 10).toFixed(1)}M`,
-            velocity: Math.floor(70 + Math.random() * 30),
-            sentiment:
-              Math.random() > 0.6 ? "Positive" : Math.random() > 0.5 ? "Mixed" : "Negative",
-            platform: ["TikTok", "Instagram", "Twitter", "Weibo"][Math.floor(Math.random() * 4)] as any,
-            influencer: Math.random() > 0.3 ? {
-              name: ["Emma Chamberlain", "Chiara Ferragni", "Leonnie Hanne", "Alix Earle"][Math.floor(Math.random() * 4)],
-              followers: `${(Math.random() * 20).toFixed(1)}M`
-            } : undefined,
-            keywords: ["#QuietLuxury", "#ArchiveFashion", "#LuxuryHaul", "#MustHave"].sort(() => Math.random() - 0.5).slice(0, 2)
-          }
-        : undefined,
-    };
-
-    const newRec = synthesizeRecommendation(newSignal);
-
-    setSignals((prev) => [newSignal, ...prev.slice(0, MAX_SIGNALS - 1)]);
-    setRecommendations((prev) => {
-      // Prevent duplicate recommendations for the same brand + title
-      const isDuplicate = prev.some(
-        (r) => r.title === newRec.title && r.competitor === newRec.competitor
+    try {
+      const activeCompetitors = brandsRef.current.filter(
+        (b) => b.isCompetitor && b.name.toLowerCase() !== PRIMARY_BRAND_LOWER
       );
-      if (isDuplicate) return prev;
-      return [newRec, ...prev.slice(0, MAX_RECOMMENDATIONS - 1)];
-    });
-  }, []); // No deps — uses brandsRef to avoid stale closure
+
+      if (activeCompetitors.length === 0) {
+        setIsSimulating(false);
+        return;
+      }
+
+      const randomBrand = activeCompetitors[Math.floor(Math.random() * activeCompetitors.length)].name;
+      const randomEvent = SIMULATION_EVENTS[Math.floor(Math.random() * SIMULATION_EVENTS.length)];
+
+      const hasSimilarity = Math.random() > 0.7;
+      const hasPrediction = Math.random() > 0.6;
+      const isSocial = randomEvent.category === "Marketing" || randomEvent.event.toLowerCase().includes("viral");
+
+      const newSignal: MarketSignal = {
+        id: `sim-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        brand: randomBrand,
+        event: randomEvent.event,
+        category: randomEvent.category,
+        details: randomEvent.details,
+        impact: randomEvent.impact,
+        time: "Just now",
+        visualSimilarity: hasSimilarity ? parseFloat((0.75 + Math.random() * 0.2).toFixed(2)) : undefined,
+        prediction: hasPrediction ? {
+          event: "Potential Price Adjustment",
+          probability: Math.floor(65 + Math.random() * 25),
+          timeframe: "24-48h",
+        } : undefined,
+        socialMetrics: isSocial ? {
+          views: `${(Math.random() * 10).toFixed(1)}M`,
+          velocity: Math.floor(70 + Math.random() * 30),
+          sentiment: Math.random() > 0.6 ? "Positive" : Math.random() > 0.5 ? "Mixed" : "Negative",
+          platform: ["TikTok", "Instagram", "Twitter", "Weibo"][Math.floor(Math.random() * 4)] as SocialPlatform,
+          influencer: Math.random() > 0.3 ? {
+            name: ["Emma Chamberlain", "Chiara Ferragni", "Leonnie Hanne", "Alix Earle"][Math.floor(Math.random() * 4)],
+            followers: `${(Math.random() * 20).toFixed(1)}M`
+          } : undefined,
+          keywords: ["#QuietLuxury", "#ArchiveFashion", "#LuxuryHaul", "#MustHave"].sort(() => Math.random() - 0.5).slice(0, 2)
+        } : undefined,
+      };
+
+      const newRec = synthesizeRecommendation(newSignal);
+
+      setSignals((prev) => [newSignal, ...prev.slice(0, MAX_SIGNALS - 1)]);
+      setRecommendations((prev) => {
+        const isDuplicate = prev.some(r => r.title === newRec.title && r.competitor === newRec.competitor);
+        if (isDuplicate) return prev;
+        return [newRec, ...prev.slice(0, MAX_RECOMMENDATIONS - 1)];
+      });
+    } catch (error) {
+      logger.error("Simulation event failed", error);
+    }
+  }, []);
 
   const startLiveDemo = useCallback(() => {
     stopSimulation(); // Ensure random simulation is off

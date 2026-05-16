@@ -6,62 +6,80 @@ import { useTheme } from "@/components/ThemeContext";
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+interface MarketThreat {
+  lat: number;
+  lng: number;
+  label: string;
+  trend: string;
+  color: string;
+}
+
+const THREATS: MarketThreat[] = [
+  { lat: 19.0760, lng: 72.8777, label: "MUMBAI", trend: "Demand: +18.2%", color: "#ef4444" },
+  { lat: 28.6139, lng: 77.2090, label: "DELHI", trend: "Velocity: +12.5%", color: "#C8A059" },
+  { lat: 12.9716, lng: 77.5946, label: "BANGALORE", trend: "Inventory: -8.4%", color: "#22c55e" }
+];
+
 export default function GlobalIntelligenceMap() {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<any>(null);
+  const markersRef = useRef<any[]>([]);
+  const infoWindowsRef = useRef<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [useGoogle, setUseGoogle] = useState(!!GOOGLE_MAPS_API_KEY);
   const { theme } = useTheme();
 
   useEffect(() => {
-    if (useGoogle) {
-      loadGoogleMaps();
-    } else {
-      loadLeaflet();
-    }
+    const init = async () => {
+      if (useGoogle) {
+        await loadGoogleMaps();
+      } else {
+        loadLeaflet();
+      }
+    };
+    init();
 
     return () => {
-      if (mapInstance.current) {
-        // Cleanup logic would go here if needed
+      // Cleanup markers and info windows
+      markersRef.current.forEach(m => m.setMap(null));
+      infoWindowsRef.current.forEach(iw => iw.close());
+      markersRef.current = [];
+      infoWindowsRef.current = [];
+      
+      if (mapInstance.current && !useGoogle) {
+        mapInstance.current.remove();
       }
     };
   }, [useGoogle, theme]);
 
-  const loadGoogleMaps = () => {
-    // Check if google maps is already loaded
+  const loadGoogleMaps = async () => {
     // @ts-ignore
     if (window.google && window.google.maps) {
       initGoogleMap();
       return;
     }
 
-    // Check if the script is already being loaded
-    if (document.getElementById("google-maps-script")) {
-      return;
-    }
+    if (document.getElementById("google-maps-script")) return;
 
     const script = document.createElement("script");
     script.id = "google-maps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&libraries=visualization`;
     script.async = true;
     
-    const timeout = setTimeout(() => {
-      console.warn("Google Maps load timeout. Falling back to Leaflet.");
-      setUseGoogle(false);
-    }, 5000);
-
-    script.onload = () => {
-      clearTimeout(timeout);
-      initGoogleMap();
-    };
-
-    script.onerror = () => {
-      clearTimeout(timeout);
-      console.error("Google Maps script failed to load.");
-      setUseGoogle(false);
-    };
+    const promise = new Promise((resolve, reject) => {
+      script.onload = resolve;
+      script.onerror = reject;
+    });
 
     document.head.appendChild(script);
+    
+    try {
+      await promise;
+      initGoogleMap();
+    } catch (err) {
+      console.error("Google Maps script failed to load.");
+      setUseGoogle(false);
+    }
   };
 
   const initGoogleMap = () => {
@@ -70,50 +88,32 @@ export default function GlobalIntelligenceMap() {
     const google = window.google;
     
     try {
-      const darkStyle = [
+      const styles = theme === "dark" ? [
         { "elementType": "geometry", "stylers": [{ "color": "#121212" }] },
         { "elementType": "labels.text.stroke", "stylers": [{ "color": "#121212" }] },
         { "elementType": "labels.text.fill", "stylers": [{ "color": "#746855" }] },
-        { "featureType": "administrative.locality", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
-        { "featureType": "poi", "elementType": "labels.text.fill", "stylers": [{ "color": "#d59563" }] },
         { "featureType": "road", "elementType": "geometry", "stylers": [{ "color": "#38414e" }] },
-        { "featureType": "road", "elementType": "geometry.stroke", "stylers": [{ "color": "#212a37" }] },
-        { "featureType": "road", "elementType": "labels.text.fill", "stylers": [{ "color": "#9ca5b3" }] },
         { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#17263c" }] }
-      ];
-
-      const lightStyle = [
+      ] : [
         { "elementType": "geometry", "stylers": [{ "color": "#f5f5f5" }] },
         { "elementType": "labels.text.fill", "stylers": [{ "color": "#616161" }] },
-        { "elementType": "labels.text.stroke", "stylers": [{ "color": "#f5f5f5" }] },
         { "featureType": "water", "elementType": "geometry", "stylers": [{ "color": "#c9c9c9" }] }
       ];
 
       mapInstance.current = new google.maps.Map(mapRef.current, {
         center: { lat: 21.0, lng: 78.9629 }, 
         zoom: 4.8,
-        styles: theme === "dark" ? darkStyle : lightStyle,
+        styles,
         disableDefaultUI: false,
         zoomControl: true,
-        mapTypeControl: false,
-        scaleControl: true,
-        streetViewControl: false,
-        rotateControl: false,
-        fullscreenControl: true,
-        mapTypeId: theme === "dark" ? 'hybrid' : 'roadmap'
+        mapTypeId: theme === "dark" ? 'hybrid' : 'roadmap',
+        gestureHandling: 'cooperative'
       });
 
-      const threats = [
-        { lat: 19.0760, lng: 72.8777, label: "MUMBAI", trend: "Demand: +18.2%", color: "#ef4444" },
-        { lat: 28.6139, lng: 77.2090, label: "DELHI", trend: "Velocity: +12.5%", color: "#C8A059" },
-        { lat: 12.9716, lng: 77.5946, label: "BANGALORE", trend: "Inventory: -8.4%", color: "#22c55e" }
-      ];
-
-      threats.forEach(t => {
+      THREATS.forEach(t => {
         const marker = new google.maps.Marker({
           position: { lat: t.lat, lng: t.lng },
           map: mapInstance.current,
-          title: t.label,
           icon: {
             path: google.maps.SymbolPath.CIRCLE,
             fillColor: t.color,
@@ -123,17 +123,18 @@ export default function GlobalIntelligenceMap() {
             scale: 8
           }
         });
+        markersRef.current.push(marker);
 
         const infoWindow = new google.maps.InfoWindow({
           content: `
-            <div style="background: rgba(18,18,18,0.9); padding: 6px 10px; border: 1px solid ${t.color}; border-radius: 6px; color: white; font-family: inherit; font-size: 10px; pointer-events: none;">
-              <div style="font-weight: 900; text-transform: uppercase; color: ${t.color}; font-size: 8px;">${t.label}</div>
-              <div style="font-weight: bold; margin-top: 2px;">${t.trend}</div>
+            <div style="background: ${theme === 'dark' ? 'rgba(18,18,18,0.9)' : 'white'}; padding: 8px 12px; border: 1px solid ${t.color}; border-radius: 12px; color: ${theme === 'dark' ? 'white' : '#0F172A'}; font-family: inherit; font-size: 11px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
+              <div style="font-weight: 900; text-transform: uppercase; color: ${t.color}; font-size: 9px; letter-spacing: 0.1em;">${t.label}</div>
+              <div style="font-weight: bold; margin-top: 4px;">${t.trend}</div>
             </div>
           `,
           disableAutoPan: true
         });
-
+        infoWindowsRef.current.push(infoWindow);
         infoWindow.open(mapInstance.current, marker);
       });
 
