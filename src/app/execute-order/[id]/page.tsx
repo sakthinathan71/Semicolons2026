@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Factory, Truck, Store, IndianRupee, Calculator, FileWarning, ArrowRight, Save, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Factory, Truck, Store, IndianRupee, Calculator, FileWarning, ArrowRight, Save, Send, Sparkles } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
 
 export default function ExecuteOrderPage({ params }: { params: Promise<{ id: string }> }) {
