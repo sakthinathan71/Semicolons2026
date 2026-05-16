@@ -9,6 +9,7 @@ import {
   mockInitialSignals,
   SIMULATION_EVENTS,
 } from "@/lib/intelligence";
+import { DEMO_SCRIPT } from "@/lib/demoScript";
 import {
   PRIMARY_BRAND_LOWER,
   MAX_SIGNALS,
@@ -31,7 +32,9 @@ type IntelligenceContextType = {
   triggerMockEvent: () => void;
   startSimulation: () => void;
   stopSimulation: () => void;
+  startLiveDemo: () => void;
   isSimulating: boolean;
+  isDemoing: boolean;
   executeStrategy: (strategy: AIRecommendation) => void;
 };
 
@@ -76,9 +79,11 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
   const [signals, setSignals] = useState<MarketSignal[]>(mockInitialSignals);
   const [recommendations, setRecommendations] = useState<AIRecommendation[]>(INITIAL_RECOMMENDATIONS);
   const [isSimulating, setIsSimulating] = useState(false);
+  const [isDemoing, setIsDemoing] = useState(false);
 
   // Use a ref for the interval to avoid stale closures and prevent double-registration in StrictMode
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const demoTimeoutsRef = useRef<NodeJS.Timeout[]>([]);
   // Use a ref for brands so the interval callback always has the latest value
   const brandsRef = useRef(brands);
 
@@ -146,17 +151,49 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
     });
   }, []); // No deps — uses brandsRef to avoid stale closure
 
+  const startLiveDemo = useCallback(() => {
+    stopSimulation(); // Ensure random simulation is off
+    setIsDemoing(true);
+
+    DEMO_SCRIPT.forEach((step) => {
+      const timeout = setTimeout(() => {
+        const newSignal: MarketSignal = {
+          id: `demo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          time: "Just now",
+          ...step.signal,
+        } as MarketSignal;
+
+        const newRec = synthesizeRecommendation(newSignal);
+
+        setSignals((prev) => [newSignal, ...prev.slice(0, MAX_SIGNALS - 1)]);
+        setRecommendations((prev) => {
+          const isDuplicate = prev.some(
+            (r) => r.title === newRec.title && r.competitor === newRec.competitor
+          );
+          if (isDuplicate) return prev;
+          return [newRec, ...prev.slice(0, MAX_RECOMMENDATIONS - 1)];
+        });
+      }, step.delay);
+
+      demoTimeoutsRef.current.push(timeout);
+    });
+  }, []);
+
   // Manage interval lifecycle cleanly
   useEffect(() => {
     if (isSimulating) {
       // Clear any existing interval before setting a new one (handles React StrictMode double-invoke)
       if (intervalRef.current) clearInterval(intervalRef.current);
       intervalRef.current = setInterval(triggerMockEvent, SIMULATION_INTERVAL_MS);
-    } else {
+    }
+
+    if (!isSimulating && !isDemoing) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      demoTimeoutsRef.current.forEach(clearTimeout);
+      demoTimeoutsRef.current = [];
     }
 
     return () => {
@@ -164,11 +201,23 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
         clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
+      demoTimeoutsRef.current.forEach(clearTimeout);
     };
-  }, [isSimulating, triggerMockEvent]);
+  }, [isSimulating, isDemoing, triggerMockEvent]);
 
-  const startSimulation = useCallback(() => setIsSimulating(true), []);
-  const stopSimulation = useCallback(() => setIsSimulating(false), []);
+  const startSimulation = useCallback(() => {
+    setIsDemoing(false);
+    demoTimeoutsRef.current.forEach(clearTimeout);
+    demoTimeoutsRef.current = [];
+    setIsSimulating(true);
+  }, []);
+
+  const stopSimulation = useCallback(() => {
+    setIsSimulating(false);
+    setIsDemoing(false);
+    demoTimeoutsRef.current.forEach(clearTimeout);
+    demoTimeoutsRef.current = [];
+  }, []);
 
   const executeStrategy = useCallback((strategy: AIRecommendation) => {
     const newSignal: MarketSignal = {
@@ -192,10 +241,12 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
       triggerMockEvent,
       startSimulation,
       stopSimulation,
+      startLiveDemo,
       isSimulating,
+      isDemoing,
       executeStrategy,
     }),
-    [signals, recommendations, brands, setBrands, triggerMockEvent, startSimulation, stopSimulation, isSimulating, executeStrategy]
+    [signals, recommendations, brands, setBrands, triggerMockEvent, startSimulation, stopSimulation, startLiveDemo, isSimulating, isDemoing, executeStrategy]
   );
 
   return (
