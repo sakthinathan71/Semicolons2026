@@ -72,6 +72,11 @@ export default function ExecuteOrderPage({ params }: { params: Promise<{ id: str
     }, 2500);
   };
 
+  const automateApprovals = () => {
+    setIsSentForApproval(true);
+    setApprovals({ finance: true, supplyChain: true, retail: true });
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>, field: keyof typeof financials) => {
     const val = parseFloat(e.target.value) || 0;
     setFinancials(prev => ({ ...prev, [field]: val }));
@@ -99,38 +104,47 @@ export default function ExecuteOrderPage({ params }: { params: Promise<{ id: str
               </p>
             </div>
           </div>
-          {isSentForApproval && !allApproved && (
-            <div className="flex items-center space-x-2 bg-blue-500/10 text-blue-400 px-5 py-2.5 rounded-full border border-blue-500/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
-              <Send className="w-3.5 h-3.5" />
-              <span>Awaiting Stakeholder Authorization</span>
-            </div>
-          )}
+          <div className="flex items-center space-x-4">
+            {!allApproved && (
+              <button 
+                onClick={automateApprovals}
+                className="flex items-center space-x-2 bg-luxury-gold/10 text-luxury-gold px-5 py-2.5 rounded-full border border-luxury-gold/30 text-[10px] font-black uppercase tracking-widest hover:bg-luxury-gold/20 transition-all"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>AI Agent Auto-Authorize</span>
+              </button>
+            )}
+            {isSentForApproval && !allApproved && (
+              <div className="flex items-center space-x-2 bg-blue-500/10 text-blue-400 px-5 py-2.5 rounded-full border border-blue-500/20 text-[10px] font-black uppercase tracking-widest animate-pulse">
+                <Send className="w-3.5 h-3.5" />
+                <span>Awaiting Stakeholder Authorization</span>
+              </div>
+            )}
+          </div>
         </header>
 
         {/* Intelligence Context Banner */}
-        {strategy && (
-          <div className="glass border-luxury-gold/30 bg-luxury-gold/5 p-6 rounded-[32px] flex justify-between items-center">
-            <div className="flex items-center space-x-6">
-              <div className="w-12 h-12 bg-luxury-gold/10 rounded-2xl flex items-center justify-center border border-luxury-gold/20">
-                <Sparkles className="w-6 h-6 text-luxury-gold" />
-              </div>
-              <div>
-                <p className="text-[10px] text-luxury-gold uppercase tracking-widest font-black mb-1">AI Strategic Trigger</p>
-                <h2 className="text-xl font-bold tracking-tight">{strategy.title}</h2>
-                <p className="text-sm text-secondary mt-1 max-w-2xl">{strategy.logic}</p>
-              </div>
+        <div className="glass border-luxury-gold/30 bg-luxury-gold/5 p-6 rounded-[32px] flex justify-between items-center">
+          <div className="flex items-center space-x-6">
+            <div className="w-12 h-12 bg-luxury-gold/10 rounded-2xl flex items-center justify-center border border-luxury-gold/20">
+              <Sparkles className="w-6 h-6 text-luxury-gold" />
             </div>
-            <div className="text-right flex flex-col items-end">
-              <span className={cn(
-                "text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border mb-2",
-                strategy.threat === 'High' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
-              )}>
-                {strategy.threat} Intensity Threat
-              </span>
-              <p className="text-[10px] text-muted font-bold uppercase tracking-tighter">Competitor: {strategy.competitor}</p>
+            <div>
+              <p className="text-[10px] text-luxury-gold uppercase tracking-widest font-black mb-1">AI Strategic Trigger</p>
+              <h2 className="text-xl font-bold tracking-tight">{strategy?.title || "Custom Strategic Pricing Adjustment"}</h2>
+              <p className="text-sm text-secondary mt-1 max-w-2xl">{strategy?.logic || "Manual market intervention triggered by executive oversight. Optimizing unit economics for current competitive landscape."}</p>
             </div>
           </div>
-        )}
+          <div className="text-right flex flex-col items-end">
+            <span className={cn(
+              "text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border mb-2",
+              (strategy?.threat || 'Medium') === 'High' ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+            )}>
+              {strategy?.threat || 'Medium'} Intensity Threat
+            </span>
+            <p className="text-[10px] text-muted font-bold uppercase tracking-tighter">Competitor: {strategy?.competitor || "Market Average"}</p>
+          </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -238,7 +252,7 @@ export default function ExecuteOrderPage({ params }: { params: Promise<{ id: str
                     onClick={() => setIsSentForApproval(true)}
                     className="w-full py-4 bg-primary text-background rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all hover:scale-[1.02] shadow-xl"
                   >
-                    Submit for Executive Sign-off
+                    Generate Execution Protocol
                   </button>
                )}
             </div>
@@ -247,9 +261,17 @@ export default function ExecuteOrderPage({ params }: { params: Promise<{ id: str
           {/* Section 2: Authorization Workflow */}
           <div className="lg:col-span-7 space-y-6">
             <div className="glass rounded-[40px] p-8 h-full flex flex-col">
-              <header className="mb-8">
-                <h3 className="text-xl font-medium tracking-tight">Protocol Authorization</h3>
-                <p className="text-[10px] text-muted uppercase font-bold tracking-widest mt-1">Multi-Level Stakeholder Verification Required</p>
+              <header className="mb-8 flex justify-between items-start">
+                <div>
+                  <h3 className="text-xl font-medium tracking-tight">Protocol Authorization</h3>
+                  <p className="text-[10px] text-muted uppercase font-bold tracking-widest mt-1">Multi-Level Stakeholder Verification Required</p>
+                </div>
+                {!isSentForApproval && (
+                   <div className="flex items-center space-x-2 text-[10px] text-orange-400 font-black uppercase tracking-widest bg-orange-400/10 px-4 py-2 rounded-lg border border-orange-400/20">
+                      <FileWarning className="w-4 h-4" />
+                      <span>Pending Protocol Generation</span>
+                   </div>
+                )}
               </header>
 
               <div className="space-y-4 flex-1">
@@ -278,9 +300,8 @@ export default function ExecuteOrderPage({ params }: { params: Promise<{ id: str
                       </div>
                       {!isApproved ? (
                         <button 
-                          disabled={!isSentForApproval}
                           onClick={() => handleApprove(step.key as keyof typeof approvals)} 
-                          className="text-[9px] px-6 py-3 bg-card-border hover:bg-primary hover:text-background rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                          className="text-[9px] px-6 py-3 bg-card-border hover:bg-primary hover:text-background rounded-xl font-black uppercase tracking-widest transition-all"
                         >
                           Authorize
                         </button>
