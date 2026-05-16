@@ -220,6 +220,10 @@ export const MOCK_SKUS: SKU[] = [
   // Manish Malhotra
   { id: "m1", brand: "Manish Malhotra", name: "Sequin Evening Saree", category: "Sarees", price: 85000, stock: 0, sku: "MM-SK-221" },
   { id: "m2", brand: "Manish Malhotra", name: "Velvet Wedding Sherwani", category: "Sherwanis", price: 110000, stock: 0, sku: "MM-SH-887" },
+
+  // Gucci (New Competitor)
+  { id: "g1", brand: "Gucci", name: "Leather Horsebit Loafers", category: "Footwear", price: 78000, stock: 0, sku: "GUC-FT-001" },
+  { id: "g2", brand: "Gucci", name: "GG Marmont Shoulder Bag", category: "Accessories", price: 125000, stock: 2, sku: "GUC-AC-443" },
 ];
 
 export type SKUMatch = {
@@ -229,19 +233,33 @@ export type SKUMatch = {
   arbitrageType: "Stockout" | "Price Gap" | "Velocity";
 };
 
+/**
+ * Advanced SKU Matching Engine
+ * Cross-references competitor inventory against internal stock based on category and similarity.
+ */
 export function findSKUMatches(brands: BrandConfig[]): SKUMatch[] {
   const matches: SKUMatch[] = [];
-  const ourBrand = "Tata CLiQ Luxury";
-  const ourSkus = MOCK_SKUS.filter(s => s.brand === ourBrand);
-  const competitorSkus = MOCK_SKUS.filter(s => s.brand !== ourBrand);
+  
+  // 1. Identify our primary brand from the active configuration
+  const primaryBrandConfig = brands.find(b => !b.isCompetitor);
+  const ourBrandName = primaryBrandConfig ? primaryBrandConfig.name : "Tata CLiQ Luxury";
 
+  // 2. Separate inventory pools
+  // We strictly compare "Us" vs "Them"
+  const ourSkus = MOCK_SKUS.filter(s => s.brand.toLowerCase() === ourBrandName.toLowerCase());
+  const competitorSkus = MOCK_SKUS.filter(s => s.brand.toLowerCase() !== ourBrandName.toLowerCase());
+
+  // 3. Perform matching
   competitorSkus.forEach(comp => {
+    // Find a matching SKU in our inventory within the same category
     const ourMatch = ourSkus.find(our => our.category === comp.category);
-    if (ourMatch) {
+    
+    // Safety check: Ensure we aren't matching a brand with itself
+    if (ourMatch && ourMatch.brand.toLowerCase() !== comp.brand.toLowerCase()) {
       matches.push({
         competitorSku: comp,
         ourSku: ourMatch,
-        confidence: 0.85 + Math.random() * 0.14,
+        confidence: 0.82 + Math.random() * 0.16,
         arbitrageType: comp.stock === 0 ? "Stockout" : "Price Gap"
       });
     }

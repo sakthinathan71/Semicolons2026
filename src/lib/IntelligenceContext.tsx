@@ -49,6 +49,7 @@ const INITIAL_BRANDS: BrandConfig[] = [
   { id: "6", name: "Ensemble India", website: "ensembleindia.com", instagram: "@ensembleindia", isCompetitor: true },
   { id: "7", name: "Sabyasachi", website: "sabyasachi.com", instagram: "@sabyasachiofficial", isCompetitor: true },
   { id: "8", name: "Manish Malhotra", website: "manishmalhotra.in", instagram: "@manishmalhotraworld", isCompetitor: true },
+  { id: "9", name: "Gucci", website: "gucci.com", instagram: "@gucci", isCompetitor: true },
 ];
 
 const INITIAL_RECOMMENDATIONS: AIRecommendation[] = [
