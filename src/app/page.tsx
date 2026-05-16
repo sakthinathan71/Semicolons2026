@@ -15,6 +15,7 @@ const PriceWatch      = lazy(() => import("@/components/dashboard/PriceWatch"));
 const SocialVelocity  = lazy(() => import("@/components/dashboard/SocialVelocity"));
 const SKUMatchmaker   = lazy(() => import("@/components/dashboard/SKUMatchmaker"));
 const SettingsView    = lazy(() => import("@/components/dashboard/SettingsView"));
+const ProfileView     = lazy(() => import("@/components/dashboard/ProfileView"));
 const MarketAlerts    = lazy(() => import("@/components/dashboard/MarketAlerts"));
 const ComingSoon      = lazy(() => import("@/components/dashboard/ComingSoon"));
 
@@ -42,7 +43,8 @@ type TabName =
   | "Social Velocity"
   | "SKU Matchmaker"
   | "Market Alerts"
-  | "Settings";
+  | "Settings"
+  | "Profile";
 
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
@@ -51,7 +53,7 @@ export default function Dashboard() {
   const [activeTab, setActiveTab] = useState<TabName>("Intelligence Hub");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const showSimulationControls = activeTab !== "Settings" && activeTab !== "Market Alerts";
+  const showSimulationControls = activeTab !== "Settings" && activeTab !== "Market Alerts" && activeTab !== "Profile";
 
   function renderPanel() {
     switch (activeTab) {
@@ -67,6 +69,8 @@ export default function Dashboard() {
         return <SKUMatchmaker />;
       case "Settings":
         return <SettingsView />;
+      case "Profile":
+        return <ProfileView />;
       case "Market Alerts":
         return <MarketAlerts signals={signals} />;
       default:
