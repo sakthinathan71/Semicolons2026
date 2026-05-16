@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Factory, Truck, Store, IndianRupee, Calculator, FileWarning, ArrowRight, Save, Send, Sparkles } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
+import { cn } from "@/lib/utils";
 
 export default function ExecuteOrderPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = React.use(params);
