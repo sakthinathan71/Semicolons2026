@@ -18,10 +18,18 @@ export type Prediction = {
   timeframe: string;
 };
 
+export type PlatformType = "TikTok" | "Instagram" | "Twitter" | "Weibo";
+
 export type SocialMetrics = {
   views: string;
   velocity: number; // 0-100
   sentiment: SentimentType;
+  platform?: PlatformType;
+  influencer?: {
+    name: string;
+    followers: string;
+  };
+  keywords?: string[];
 };
 
 export type MarketSignal = {
@@ -158,6 +166,13 @@ export const mockInitialSignals: MarketSignal[] = [
     impact: "Neutral",
     time: "45m ago",
     visualSimilarity: 0.92,
-    socialMetrics: { views: "4.2M", velocity: 94, sentiment: "Positive" },
+    socialMetrics: { 
+      views: "4.2M", 
+      velocity: 94, 
+      sentiment: "Positive",
+      platform: "TikTok",
+      influencer: { name: "Emma Chamberlain", followers: "12.2M" },
+      keywords: ["#VintageArchives", "#HermesSS26", "#QuietLuxury"]
+    },
   },
 ];
