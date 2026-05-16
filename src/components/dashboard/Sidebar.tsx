@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useCallback } from "react";
-import { LayoutDashboard, TrendingUp, Users, Settings, Bell, Zap, X, LogOut, User as UserIcon } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Users, Settings, Bell, Zap, X, LogOut, User as UserIcon, Layers } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { icon: TrendingUp,      label: "Price Watch" },
   { icon: Users,           label: "Social Velocity" },
   { icon: Zap,             label: "Strategy AI" },
+  { icon: Layers,          label: "SKU Matchmaker" },
   { icon: Bell,            label: "Market Alerts" },
 ] as const;
 
@@ -172,14 +173,13 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
             onKeyDown={(e) => handleKeyDown(e, NAV_ITEMS.length + 1)}
             aria-current={activeTab === "Settings" ? "page" : undefined}
             className={cn(
-              "w-full flex items-center space-x-3 transition-all group px-4 py-2.5 rounded-xl text-left",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold",
+              "w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-300 group",
               activeTab === "Settings"
-                ? "bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20"
-                : "text-white/30 hover:text-white hover:bg-white/5"
+                ? "bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20 shadow-lg shadow-luxury-gold/5"
+                : "text-muted hover:text-primary hover:bg-luxury-slate"
             )}
           >
-            <Settings className={cn("w-5 h-5 group-hover:rotate-45 transition-transform duration-500 shrink-0", activeTab === "Settings" ? "text-luxury-gold" : "text-white/20")} />
+            <Settings className={cn("w-5 h-5 group-hover:rotate-45 transition-transform duration-500 shrink-0", activeTab === "Settings" ? "text-luxury-gold" : "text-dim")} />
             <span className="text-sm font-medium">Settings</span>
           </button>
 

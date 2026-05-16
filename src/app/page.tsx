@@ -13,6 +13,7 @@ const IntelligenceHub = lazy(() => import("@/components/dashboard/IntelligenceHu
 const StrategyAI      = lazy(() => import("@/components/dashboard/StrategyAI"));
 const PriceWatch      = lazy(() => import("@/components/dashboard/PriceWatch"));
 const SocialVelocity  = lazy(() => import("@/components/dashboard/SocialVelocity"));
+const SKUMatchmaker   = lazy(() => import("@/components/dashboard/SKUMatchmaker"));
 const SettingsView    = lazy(() => import("@/components/dashboard/SettingsView"));
 const MarketAlerts    = lazy(() => import("@/components/dashboard/MarketAlerts"));
 const ComingSoon      = lazy(() => import("@/components/dashboard/ComingSoon"));
@@ -22,10 +23,10 @@ const ComingSoon      = lazy(() => import("@/components/dashboard/ComingSoon"));
 function PanelSkeleton() {
   return (
     <div className="animate-pulse space-y-6" aria-busy="true" aria-label="Loading panel...">
-      <div className="glass rounded-[40px] border border-white/5 h-48" />
+      <div className="glass rounded-[40px] border border-luxury-slate h-48" />
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="glass rounded-[40px] border border-white/5 h-32" />
+          <div key={i} className="glass rounded-[40px] border border-luxury-slate h-32" />
         ))}
       </div>
     </div>
@@ -39,6 +40,7 @@ type TabName =
   | "Strategy AI"
   | "Price Watch"
   | "Social Velocity"
+  | "SKU Matchmaker"
   | "Market Alerts"
   | "Settings";
 
@@ -61,6 +63,8 @@ export default function Dashboard() {
         return <PriceWatch signals={signals} />;
       case "Social Velocity":
         return <SocialVelocity signals={signals} />;
+      case "SKU Matchmaker":
+        return <SKUMatchmaker />;
       case "Settings":
         return <SettingsView />;
       case "Market Alerts":

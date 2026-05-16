@@ -188,3 +188,64 @@ export const mockInitialSignals: MarketSignal[] = [
     prediction: { event: "Counter-promotions expected from rivals", probability: 75, timeframe: "24 hours" },
   }
 ];
+// ─── SKU Matchmaker ──────────────────────────────────────────────────────────
+
+export type SKU = {
+  id: string;
+  brand: string;
+  name: string;
+  category: string;
+  price: number;
+  stock: number;
+  image?: string;
+  sku: string;
+};
+
+export const MOCK_SKUS: SKU[] = [
+  // Our Brand (Olivela / Tata CLiQ Luxury)
+  { id: "o1", brand: "Tata CLiQ Luxury", name: "Signature Silk Saree", category: "Sarees", price: 45000, stock: 12, sku: "OLV-SK-001" },
+  { id: "o2", brand: "Tata CLiQ Luxury", name: "Heritage Polki Necklace", category: "Jewelry", price: 120000, stock: 3, sku: "OLV-JW-042" },
+  { id: "o3", brand: "Tata CLiQ Luxury", name: "Modern Sherwani Black", category: "Sherwanis", price: 65000, stock: 8, sku: "OLV-SH-119" },
+  { id: "o4", brand: "Tata CLiQ Luxury", name: "Bridal Lehenga Crimson", category: "Bridal Couture", price: 250000, stock: 2, sku: "OLV-BC-882" },
+  { id: "o5", brand: "Tata CLiQ Luxury", name: "Velvet Loafers", category: "Footwear", price: 18000, stock: 25, sku: "OLV-FT-990" },
+
+  // Sabyasachi
+  { id: "s1", brand: "Sabyasachi", name: "Heritage Bridal Lehenga", category: "Bridal Couture", price: 380000, stock: 0, sku: "SAB-BC-001" },
+  { id: "s2", brand: "Sabyasachi", name: "Classic Silk Saree", category: "Sarees", price: 55000, stock: 2, sku: "SAB-SK-112" },
+
+  // Pernia's Pop-Up Shop
+  { id: "p1", brand: "Pernia's Pop-Up Shop", name: "Designer Silk Saree", category: "Sarees", price: 42000, stock: 0, sku: "PPS-SK-998" },
+  { id: "p2", brand: "Pernia's Pop-Up Shop", name: "Embroidered Sherwani", category: "Sherwanis", price: 72000, stock: 1, sku: "PPS-SH-443" },
+
+  // Manish Malhotra
+  { id: "m1", brand: "Manish Malhotra", name: "Sequin Evening Saree", category: "Sarees", price: 85000, stock: 0, sku: "MM-SK-221" },
+  { id: "m2", brand: "Manish Malhotra", name: "Velvet Wedding Sherwani", category: "Sherwanis", price: 110000, stock: 0, sku: "MM-SH-887" },
+];
+
+export type SKUMatch = {
+  competitorSku: SKU;
+  ourSku: SKU;
+  confidence: number;
+  arbitrageType: "Stockout" | "Price Gap" | "Velocity";
+};
+
+export function findSKUMatches(brands: BrandConfig[]): SKUMatch[] {
+  const matches: SKUMatch[] = [];
+  const ourBrand = "Tata CLiQ Luxury";
+  const ourSkus = MOCK_SKUS.filter(s => s.brand === ourBrand);
+  const competitorSkus = MOCK_SKUS.filter(s => s.brand !== ourBrand);
+
+  competitorSkus.forEach(comp => {
+    const ourMatch = ourSkus.find(our => our.category === comp.category);
+    if (ourMatch) {
+      matches.push({
+        competitorSku: comp,
+        ourSku: ourMatch,
+        confidence: 0.85 + Math.random() * 0.14,
+        arbitrageType: comp.stock === 0 ? "Stockout" : "Price Gap"
+      });
+    }
+  });
+
+  return matches;
+}
