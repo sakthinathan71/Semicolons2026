@@ -54,11 +54,11 @@ export default async function ProductDetailPage({ params }: { params: Promise<{ 
                 <div className="space-y-4">
                   <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-sm text-white/80">Current List Price</span>
-                    <span className="text-sm font-mono font-bold">$1,250</span>
+                    <span className="text-sm font-mono font-bold">₹1,12,500</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-sm text-white/80">30-Day Lowest</span>
-                    <span className="text-sm font-mono font-bold text-red-400">$1,100</span>
+                    <span className="text-sm font-mono font-bold text-red-400">₹98,000</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-white/5 pb-2">
                     <span className="text-sm text-white/80">Variance</span>

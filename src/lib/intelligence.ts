@@ -64,13 +64,15 @@ export const SIMULATION_EVENTS: Array<{
   impact: SignalImpact;
   details: string;
 }> = [
-  { event: "Price Drop (-10%)", category: "Bags", impact: "High", details: "Flash sale detected on flagship SKU" },
-  { event: "New Drop", category: "Shoes", impact: "Positive", details: "Limited edition capsule release announced" },
-  { event: "Viral Post", category: "Marketing", impact: "Medium", details: "Influencer-driven social engagement spike" },
-  { event: "Out of Stock", category: "Watches", impact: "High", details: "Global inventory depleted on hero product" },
-  { event: "Price Increase (+5%)", category: "Accessories", impact: "Neutral", details: "Seasonal standard pricing adjustment" },
-  { event: "Flash Promotion", category: "Bags", impact: "High", details: "48-hour exclusive member pricing event" },
-  { event: "New Collection Launch", category: "RTW", impact: "Positive", details: "FW26 ready-to-wear line goes live online" },
+  { event: "Price Drop (-15%)", category: "Bridal Couture", impact: "High", details: "Flash sale detected on flagship lehengas" },
+  { event: "New Drop", category: "Jewelry", impact: "Positive", details: "Limited edition heritage Polki capsule announced" },
+  { event: "Viral Post", category: "Marketing", impact: "Medium", details: "Influencer-driven wedding season engagement spike" },
+  { event: "Out of Stock", category: "Sherwanis", impact: "High", details: "Global inventory depleted on hero wedding product" },
+  { event: "Price Increase (+5%)", category: "Accessories", impact: "Neutral", details: "Standard festive pricing adjustment" },
+  { event: "Flash Promotion", category: "Sarees", impact: "High", details: "48-hour exclusive member pricing event" },
+  { event: "New Collection Launch", category: "RTW", impact: "Positive", details: "Festive ready-to-wear line goes live online" },
+  { event: "Influencer Collab", category: "Marketing", impact: "Medium", details: "Major celebrity endorsement revealed on Instagram" },
+  { event: "Stock Clearance", category: "Footwear", impact: "Low", details: "End of season markdown on luxury juttis" },
 ];
 
 // ─── AI Recommendation Synthesizer ────────────────────────────────────────────
@@ -139,30 +141,30 @@ export function synthesizeRecommendation(signal: MarketSignal): AIRecommendation
 export const mockInitialSignals: MarketSignal[] = [
   {
     id: "init-1",
-    brand: "Louis Vuitton",
+    brand: "Manish Malhotra",
     event: "Price Increase (+5%)",
-    category: "Neverfull Collection",
-    details: "Standard annual pricing adjustment across Monogram Canvas",
+    category: "Bridal Couture",
+    details: "Standard festive pricing adjustment across signature lehengas",
     impact: "Positive",
     time: "12m ago",
     prediction: { event: "Market stabilization expected", probability: 85, timeframe: "7 days" },
   },
   {
     id: "init-2",
-    brand: "Gucci",
+    brand: "Sabyasachi",
     event: "Out of Stock",
-    category: "Footwear",
-    details: "Horsebit loafers sold out across all global storefronts",
+    category: "Jewelry",
+    details: "Heritage choker sets sold out across all storefronts",
     impact: "High",
     time: "1h ago",
     prediction: { event: "Restock anticipated", probability: 60, timeframe: "14 days" },
   },
   {
     id: "init-3",
-    brand: "Hermès",
+    brand: "Pernia's Pop-Up Shop",
     event: "Viral Post",
     category: "Marketing",
-    details: "Spring/Summer 26 Birkin campaign reaches 4.2M impressions",
+    details: "Festive season campaign reaches 4.2M impressions",
     impact: "Neutral",
     time: "45m ago",
     visualSimilarity: 0.92,
@@ -170,9 +172,19 @@ export const mockInitialSignals: MarketSignal[] = [
       views: "4.2M", 
       velocity: 94, 
       sentiment: "Positive",
-      platform: "TikTok",
-      influencer: { name: "Emma Chamberlain", followers: "12.2M" },
-      keywords: ["#VintageArchives", "#HermesSS26", "#QuietLuxury"]
+      platform: "Instagram",
+      influencer: { name: "Diipa Khosla", followers: "2.1M" },
+      keywords: ["#DesiWedding", "#FestiveEdit", "#LuxuryIndianWear"]
     },
   },
+  {
+    id: "init-4",
+    brand: "Aza Fashions",
+    event: "Flash Promotion",
+    category: "Sarees",
+    details: "Unexpected 15% markdown on premium silk sarees",
+    impact: "High",
+    time: "2h ago",
+    prediction: { event: "Counter-promotions expected from rivals", probability: 75, timeframe: "24 hours" },
+  }
 ];

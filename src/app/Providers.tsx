@@ -1,11 +1,12 @@
-"use client";
-
 import { IntelligenceProvider } from "@/lib/IntelligenceContext";
+import { ThemeProvider } from "@/components/ThemeContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <IntelligenceProvider>
-      {children}
-    </IntelligenceProvider>
+    <ThemeProvider>
+      <IntelligenceProvider>
+        {children}
+      </IntelligenceProvider>
+    </ThemeProvider>
   );
 }

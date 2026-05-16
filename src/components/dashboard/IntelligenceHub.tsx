@@ -16,18 +16,18 @@ function calculateROI(signals: MarketSignal[]) {
   const highImpact = signals.filter(s => s.impact === "High").length;
   const stockouts = signals.filter(s => s.event.includes("Stock")).length;
 
-  // Industry benchmark: luxury e-commerce AOV = $850
+  // Industry benchmark: luxury e-commerce AOV = ₹75,000
   // Stockout arbitrage window = 48 hours
   // Capture rate with real-time response = ~15% of competitor lost demand
-  const aov = 850;
+  const aov = 75000;
   const dailyTrafficLoss = stockouts * 2400; // avg sessions lost per stockout
   const captureRate = 0.15;
   const revenue = Math.floor(dailyTrafficLoss * captureRate * aov);
 
   return {
-    revenueAtRisk: `$${(highImpact * 45_000).toLocaleString()}`,
+    revenueAtRisk: `₹${(highImpact * 45_000_00).toLocaleString()}`,
     opportunityWindow: `${Math.max(0, 48 - (signals.length * 0.5))}h`,
-    estimatedCapture: `$${revenue.toLocaleString()}`,
+    estimatedCapture: `₹${revenue.toLocaleString()}`,
   };
 }
 
@@ -76,7 +76,7 @@ export default function IntelligenceHub({ signals, isSimulating }: IntelligenceH
         <StatCard label="Active Alerts" value={signals.length} trend="stable" sub="3 High Impact" icon={BarChart3} href="/metrics/active-alerts" />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 mb-10">
         <div className="xl:col-span-8 space-y-8">
           <section className="glass rounded-[40px] p-10 border border-white/5 relative overflow-hidden min-h-[600px] shadow-2xl">
             <div className="flex justify-between items-center mb-8">
@@ -108,6 +108,21 @@ export default function IntelligenceHub({ signals, isSimulating }: IntelligenceH
           <StrategyPanel />
         </div>
       </div>
+
+      {/* ── New Enterprise Features ────────────────────────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 pb-10">
+        <GlobalIntelligenceMap />
+        <AutopilotPolicyEngine />
+      </div>
     </>
   );
 }
+
+// Lazy components
+import dynamic from "next/dynamic";
+const GlobalIntelligenceMap = dynamic(() => import("@/components/dashboard/GlobalIntelligenceMap"), {
+  loading: () => <div className="h-[500px] glass rounded-[40px] animate-pulse" />
+});
+const AutopilotPolicyEngine = dynamic(() => import("@/components/dashboard/AutopilotPolicyEngine"), {
+  loading: () => <div className="h-[500px] glass rounded-[40px] animate-pulse" />
+});

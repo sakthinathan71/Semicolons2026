@@ -4,43 +4,69 @@ export const DEMO_SCRIPT: Array<{ delay: number; signal: Partial<MarketSignal> }
   {
     delay: 0,
     signal: {
-      brand: "Net-a-Porter",
+      brand: "Sabyasachi",
       event: "Out of Stock",
-      category: "Gucci Horsebit Loafer",
+      category: "Bridal Couture",
       impact: "High",
-      details: "Global inventory depleted — 4,200 waitlisted buyers",
+      details: "Flagship heritage lehengas depleted — 1,200 waitlisted buyers across boutiques.",
       visualSimilarity: 0.94,
     },
   },
   {
     delay: 3000,
     signal: {
-      brand: "Instagram / TikTok",
+      brand: "Instagram",
       event: "Viral Search Spike +340%",
       category: "Marketing",
       impact: "Positive",
-      details: "Competitor stockout driving search demand for alternatives",
-      socialMetrics: { views: "2.4M", velocity: 96, sentiment: "Positive" },
+      details: "Competitor stockout driving massive search demand for bridal alternatives.",
+      socialMetrics: { 
+        views: "2.4M", 
+        velocity: 96, 
+        sentiment: "Positive",
+        platform: "Instagram",
+        keywords: ["#SabyasachiSoldOut", "#BridalLehenga", "#WeddingSeason"]
+      },
     },
   },
   {
-    delay: 9000,
+    delay: 7000,
     signal: {
-      brand: "Olivela",
-      event: "Strategy Deployed: Homepage Boost",
+      brand: "Aza Fashions",
+      event: "Flash Promotion (-15%)",
+      category: "Bridal Couture",
+      impact: "High",
+      details: "Aza Fashions attempting to capture overflow traffic with a sudden discount.",
+    },
+  },
+  {
+    delay: 11000,
+    signal: {
+      brand: "Tata CLiQ Luxury",
+      event: "Strategy Deployed: Visual Match Boost",
       category: "Internal Action",
       impact: "Positive",
-      details: "Milano Loafer promoted to hero slot. Google Ads bid +20%.",
+      details: "Similar Anita Dongre lehenga promoted to hero slot. Performance Ads bid increased +20%.",
     },
   },
   {
-    delay: 14000,
+    delay: 15000,
     signal: {
-      brand: "Olivela",
-      event: "Revenue Impact: +18% Conversion",
+      brand: "Tata CLiQ Luxury",
+      event: "Revenue Impact: +22% Conversion",
       category: "Revenue",
       impact: "Positive",
-      details: "Loafer category conversion rate increased within 2 hours of competitor stockout.",
+      details: "Bridal category conversion rate surged within 3 hours of competitor stockout.",
     },
   },
+  {
+    delay: 19000,
+    signal: {
+      brand: "Tata CLiQ Luxury",
+      event: "Automated Escalation",
+      category: "Supply Chain",
+      impact: "Neutral",
+      details: "Warehouse notified to route extra bridal inventory to Tier-1 city fulfillment centers.",
+    },
+  }
 ];
