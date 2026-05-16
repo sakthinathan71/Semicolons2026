@@ -134,6 +134,12 @@ export function IntelligenceProvider({ children }: { children: React.ReactNode }
             velocity: Math.floor(70 + Math.random() * 30),
             sentiment:
               Math.random() > 0.6 ? "Positive" : Math.random() > 0.5 ? "Mixed" : "Negative",
+            platform: ["TikTok", "Instagram", "Twitter", "Weibo"][Math.floor(Math.random() * 4)] as any,
+            influencer: Math.random() > 0.3 ? {
+              name: ["Emma Chamberlain", "Chiara Ferragni", "Leonnie Hanne", "Alix Earle"][Math.floor(Math.random() * 4)],
+              followers: `${(Math.random() * 20).toFixed(1)}M`
+            } : undefined,
+            keywords: ["#QuietLuxury", "#ArchiveFashion", "#LuxuryHaul", "#MustHave"].sort(() => Math.random() - 0.5).slice(0, 2)
           }
         : undefined,
     };

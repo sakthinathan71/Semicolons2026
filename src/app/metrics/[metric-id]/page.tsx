@@ -37,8 +37,9 @@ const METRIC_DETAILS: Record<string, any> = {
   }
 };
 
-export default function MetricDetailPage({ params }: { params: { "metric-id": string } }) {
-  const metricId = params["metric-id"];
+export default async function MetricDetailPage({ params }: { params: Promise<{ "metric-id": string }> }) {
+  const resolvedParams = await params;
+  const metricId = resolvedParams["metric-id"];
   const details = METRIC_DETAILS[metricId] || METRIC_DETAILS["visual-similarity"];
   const Icon = details.icon;
 

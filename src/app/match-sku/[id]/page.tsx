@@ -2,8 +2,9 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Copy, Sparkles, Layers, Box, Tag, Image as ImageIcon } from "lucide-react";
 
-export default function MatchSkuPage({ params }: { params: { id: string } }) {
-  const competitorId = params.id;
+export default async function MatchSkuPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const competitorId = resolvedParams.id;
   const olivelaSku = "OLV-GUC-8842-H";
 
   return (

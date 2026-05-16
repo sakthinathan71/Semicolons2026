@@ -2,10 +2,11 @@ import React from "react";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, Activity, Box, Tag } from "lucide-react";
 
-export default function ProductDetailPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailPage({ params }: { params: Promise<{ id: string }> }) {
   // Since we don't have a database backend right now, we use the ID from the URL parameter.
   // In a real application, you would fetch product details from a database using this ID.
-  const productId = params.id;
+  const resolvedParams = await params;
+  const productId = resolvedParams.id;
 
   return (
     <div className="flex bg-luxury-charcoal min-h-screen text-white overflow-hidden p-6 lg:p-10">

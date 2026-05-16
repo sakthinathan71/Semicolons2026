@@ -5,9 +5,10 @@ import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Factory, Truck, Store, DollarSign, Calculator, FileWarning, ArrowRight } from "lucide-react";
 import { useIntelligence } from "@/lib/IntelligenceContext";
 
-export default function ExecuteOrderPage({ params }: { params: { id: string } }) {
+export default function ExecuteOrderPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = React.use(params);
   const { recommendations } = useIntelligence();
-  const recId = parseInt(params.id, 10);
+  const recId = parseInt(resolvedParams.id, 10);
   const strategy = recommendations.find(r => r.id === recId);
 
   // Approval Workflow State
@@ -63,7 +64,7 @@ export default function ExecuteOrderPage({ params }: { params: { id: string } })
             <div>
               <h1 className="text-3xl font-light tracking-tight">Market Execution Protocol</h1>
               <p className="text-white/40 mt-1 uppercase text-[10px] tracking-widest font-bold">
-                Order ID: {params.id}
+                Order ID: {resolvedParams.id}
               </p>
             </div>
           </div>
