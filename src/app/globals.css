@@ -1,49 +1,54 @@
 @import "tailwindcss";
 
+:root {
+  --background: #F8FAFC;
+  --foreground: #0F172A;
+  --luxury-gold: #B8860B;
+  --luxury-charcoal: #FFFFFF;
+  --luxury-slate: #F1F5F9;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.05);
+  --text-muted: rgba(15, 23, 42, 0.4);
+  --text-dim: rgba(15, 23, 42, 0.2);
+}
+
+.dark {
+  --background: #0F1115;
+  --foreground: #F5F5F7;
+  --luxury-gold: #D4AF37;
+  --luxury-charcoal: #0F1115;
+  --luxury-slate: #1C1F26;
+  --glass-bg: rgba(28, 31, 38, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-dim: rgba(255, 255, 255, 0.2);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-luxury-gold: #D4AF37;
-  --color-luxury-charcoal: #0F1115;
-  --color-luxury-slate: #1C1F26;
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-:root {
-  --background: #0F1115;
-  --foreground: #F5F5F7;
+  --color-luxury-gold: var(--luxury-gold);
+  --color-luxury-charcoal: var(--luxury-charcoal);
+  --color-luxury-slate: var(--luxury-slate);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
-  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Glassmorphism Utilities */
 .glass {
-  background: rgba(28, 31, 38, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
 }
 
-.glass-gold {
-  background: rgba(212, 175, 55, 0.05);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-}
+/* Global Dynamic Text Utilities */
+[class*="text-white"] { color: var(--foreground) !important; }
+[class*="text-white/40"] { color: var(--text-muted) !important; }
+[class*="text-white/20"] { color: var(--text-dim) !important; }
+[class*="border-white/5"] { border-color: var(--glass-border) !important; }
+[class*="bg-luxury-charcoal"] { background-color: var(--luxury-charcoal) !important; }
 
-/* Animations */
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-.animate-shimmer {
-  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0) 100%);
-  background-size: 200% 100%;
-  animation: shimmer 3s infinite linear;
-}
+.text-luxury-gold { color: var(--luxury-gold) !important; }

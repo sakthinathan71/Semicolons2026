@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useRef, useCallback } from "react";
-import { LayoutDashboard, TrendingUp, Users, Settings, Bell, Zap, X } from "lucide-react";
+import { LayoutDashboard, TrendingUp, Users, Settings, Bell, Zap, X, LogOut, User as UserIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 // ─── Nav Items ────────────────────────────────────────────────────────────────
 
@@ -14,7 +15,7 @@ const NAV_ITEMS = [
   { icon: Bell,            label: "Market Alerts" },
 ] as const;
 
-type NavLabel = (typeof NAV_ITEMS)[number]["label"] | "Settings";
+type NavLabel = (typeof NAV_ITEMS)[number]["label"] | "Settings" | "Profile";
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -28,13 +29,14 @@ interface SidebarProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: SidebarProps) {
+  const router = useRouter();
   // Refs array for keyboard navigation focus management
   const navButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   // Keyboard handler — Arrow keys navigate between nav items, Escape closes mobile sidebar
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent, currentIndex: number) => {
-      const total = NAV_ITEMS.length + 1; // +1 for Settings
+      const total = NAV_ITEMS.length + 3; // + Settings, Profile, Logout
 
       if (e.key === "ArrowDown") {
         e.preventDefault();
@@ -58,6 +60,12 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
     },
     [setActiveTab, onClose]
   );
+
+  const handleLogout = () => {
+    // Clear session cookie
+    document.cookie = "auth_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    router.push("/login");
+  };
 
   return (
     <>
@@ -138,29 +146,53 @@ export default function Sidebar({ activeTab, setActiveTab, isOpen, onClose }: Si
           })}
         </nav>
 
-        {/* Settings (bottom) */}
-        <div className="p-6 border-t border-white/5 bg-white/[0.01]">
+        {/* Bottom Actions */}
+        <div className="p-4 border-t border-white/5 space-y-1 bg-white/[0.01]">
+          {/* Profile */}
           <button
             ref={(el) => { navButtonRefs.current[NAV_ITEMS.length] = el; }}
-            onClick={() => navigate("Settings")}
+            onClick={() => navigate("Profile")}
             onKeyDown={(e) => handleKeyDown(e, NAV_ITEMS.length)}
+            aria-current={activeTab === "Profile" ? "page" : undefined}
+            className={cn(
+              "w-full flex items-center space-x-3 transition-all group px-4 py-2.5 rounded-xl text-left",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold",
+              activeTab === "Profile"
+                ? "bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20"
+                : "text-white/30 hover:text-white hover:bg-white/5"
+            )}
+          >
+            <UserIcon className={cn("w-5 h-5 shrink-0", activeTab === "Profile" ? "text-luxury-gold" : "text-white/20")} />
+            <span className="text-sm font-medium">Profile</span>
+          </button>
+
+          {/* Settings */}
+          <button
+            ref={(el) => { navButtonRefs.current[NAV_ITEMS.length + 1] = el; }}
+            onClick={() => navigate("Settings")}
+            onKeyDown={(e) => handleKeyDown(e, NAV_ITEMS.length + 1)}
             aria-current={activeTab === "Settings" ? "page" : undefined}
             className={cn(
-              "w-full flex items-center space-x-3 transition-all group px-4 py-3 rounded-xl text-left",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold focus-visible:ring-offset-1 focus-visible:ring-offset-luxury-charcoal",
+              "w-full flex items-center space-x-3 transition-all group px-4 py-2.5 rounded-xl text-left",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-luxury-gold",
               activeTab === "Settings"
                 ? "bg-luxury-gold/10 text-luxury-gold border border-luxury-gold/20"
                 : "text-white/30 hover:text-white hover:bg-white/5"
             )}
           >
-            <Settings
-              className={cn(
-                "w-5 h-5 group-hover:rotate-45 transition-transform duration-500 shrink-0",
-                activeTab === "Settings" ? "text-luxury-gold" : "text-white/20"
-              )}
-              aria-hidden="true"
-            />
+            <Settings className={cn("w-5 h-5 group-hover:rotate-45 transition-transform duration-500 shrink-0", activeTab === "Settings" ? "text-luxury-gold" : "text-white/20")} />
             <span className="text-sm font-medium">Settings</span>
+          </button>
+
+          {/* Logout */}
+          <button
+            ref={(el) => { navButtonRefs.current[NAV_ITEMS.length + 2] = el; }}
+            onClick={handleLogout}
+            onKeyDown={(e) => handleKeyDown(e, NAV_ITEMS.length + 2)}
+            className="w-full flex items-center space-x-3 transition-all group px-4 py-2.5 rounded-xl text-left text-red-500/60 hover:text-red-400 hover:bg-red-500/5 mt-2 border border-transparent hover:border-red-500/10"
+          >
+            <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform shrink-0" />
+            <span className="text-sm font-bold uppercase tracking-widest text-[10px]">Terminate Session</span>
           </button>
         </div>
       </aside>

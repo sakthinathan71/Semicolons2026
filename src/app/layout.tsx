@@ -18,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 import { Providers } from "./Providers";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function RootLayout({
   children,
@@ -29,8 +30,11 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col text-foreground bg-background">
-        <Providers>{children}</Providers>
+      <body className="min-h-full flex flex-col text-foreground bg-background transition-colors duration-300">
+        <Providers>
+          <ThemeToggle />
+          {children}
+        </Providers>
       </body>
     </html>
   );

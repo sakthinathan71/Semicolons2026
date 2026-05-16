@@ -111,39 +111,67 @@ export async function middleware(request: NextRequest) {
 
   const isMutation = ["POST", "PUT", "DELETE", "PATCH"].includes(request.method);
 
-  // 1. CSRF guard for mutating requests
+  const path = request.nextUrl.pathname;
+  const isAuthPage = path === "/login";
+  const isApiRoute = path.startsWith("/api");
+  const isStaticFile = path.includes(".") || path.startsWith("/_next");
+
+  // 1. Basic Authentication Check (Simulated for demo)
+  const isAuthenticated = request.cookies.has("auth_session");
+
+  if (!isAuthenticated && !isAuthPage && !isApiRoute && !isStaticFile) {
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  if (isAuthenticated && isAuthPage) {
+    return NextResponse.redirect(new URL("/", request.url));
+  }
+
+  // 2. CSRF guard for mutating requests
   if (isMutation && !isValidOrigin(request)) {
     logger.warn(`CSRF check failed for IP ${ip} — method: ${request.method}`);
     return new NextResponse("Forbidden", { status: 403 });
   }
 
-  // 2. Rate limiting
-  try {
-    const limiter = await getRateLimiter();
-    const { allowed, remaining } = await limiter(ip);
+  // 3. Rate limiting (Only for API)
+  if (isApiRoute) {
+    try {
+      const limiter = await getRateLimiter();
+      const { allowed, remaining } = await limiter(ip);
 
-    if (!allowed) {
-      logger.warn(`Rate limit exceeded for IP: ${ip}`);
-      return new NextResponse("Too Many Requests", {
-        status: 429,
-        headers: {
-          "Retry-After": "60",
-          "X-RateLimit-Limit": String(RATE_LIMIT_MAX_REQUESTS),
-          "X-RateLimit-Remaining": "0",
-        },
-      });
+      if (!allowed) {
+        logger.warn(`Rate limit exceeded for IP: ${ip}`);
+        return new NextResponse("Too Many Requests", {
+          status: 429,
+          headers: {
+            "Retry-After": "60",
+            "X-RateLimit-Limit": String(RATE_LIMIT_MAX_REQUESTS),
+            "X-RateLimit-Remaining": "0",
+          },
+        });
+      }
+
+      const response = NextResponse.next();
+      response.headers.set("X-RateLimit-Remaining", String(remaining));
+      return applySecurityHeaders(response);
+    } catch (err) {
+      logger.error("Middleware error", err);
+      return applySecurityHeaders(NextResponse.next());
     }
-
-    // 3. Pass through with security headers
-    const response = NextResponse.next();
-    response.headers.set("X-RateLimit-Remaining", String(remaining));
-    return applySecurityHeaders(response);
-  } catch (err) {
-    logger.error("Middleware error", err);
-    return applySecurityHeaders(NextResponse.next());
   }
+
+  return applySecurityHeaders(NextResponse.next());
 }
 
 export const config = {
-  matcher: "/api/:path*",
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!_next/static|_next/image|favicon.ico).*)",
+  ],
 };

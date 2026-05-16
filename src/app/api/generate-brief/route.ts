@@ -10,6 +10,8 @@ const logger = createLogger("generate-brief");
 
 const RequestSchema = z.object({
   signals: z.array(z.any()).min(0).max(MAX_SIGNALS_PER_BRIEF),
+  targetRegion: z.string().optional().default("Global"),
+  analysisDepth: z.string().optional().default("Executive Summary"),
 });
 
 const BriefResponseSchema = z.object({
@@ -47,13 +49,16 @@ function buildFallbackBrief(signals: MarketSignal[]): BriefResponse {
 
 // ─── Prompt Builder ───────────────────────────────────────────────────────────
 
-function buildPrompt(signals: MarketSignal[]): string {
+function buildPrompt(signals: MarketSignal[], region: string, depth: string): string {
   return `
 You are the "LuxeLens Intelligence Agent," an elite retail strategy consultant specializing in the global luxury market.
+You are focusing on the ${region} region.
+The desired output depth is: ${depth}. Provide appropriate tone and tactical depth for this level.
 
 RULES:
 - Never recommend price-matching or race-to-the-bottom tactics.
 - Prioritize brand exclusivity and product storytelling.
+- Use Indian Rupees (₹) for any financial figures mentioned.
 - All recommendations must be executable within 24-48 hours.
 - Respond ONLY with valid JSON matching the schema below. No markdown, no prose.
 
@@ -108,7 +113,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: buildPrompt(signals) }] }],
+          contents: [{ parts: [{ text: buildPrompt(signals, parsed.data.targetRegion, parsed.data.analysisDepth) }] }],
           generationConfig: {
             response_mime_type: "application/json",
             temperature: 0.4,

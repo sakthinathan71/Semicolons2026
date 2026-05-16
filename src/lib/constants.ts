@@ -2,7 +2,7 @@
 // Single source of truth for all magic strings and configuration values
 
 /** The name of the primary (non-competitor) brand being monitored */
-export const PRIMARY_BRAND = "Olivela";
+export const PRIMARY_BRAND = "Tata CLiQ Luxury";
 export const PRIMARY_BRAND_LOWER = PRIMARY_BRAND.toLowerCase();
 
 /** Maximum number of signals to retain in the live feed */

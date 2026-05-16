@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { Sparkles, Loader2, FileText, Gauge, AlertCircle, Activity } from "lucide-react";
+import { Sparkles, Loader2, FileText, Gauge, AlertCircle, Activity, RefreshCcw, Target, Settings2 } from "lucide-react";
 // jsPDF is dynamically imported below — only loaded when user clicks Download
 import { MarketSignal } from "@/lib/intelligence";
 
@@ -106,6 +106,8 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [briefData, setBriefData] = useState<BriefData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [targetRegion, setTargetRegion] = useState("Global");
+  const [analysisDepth, setAnalysisDepth] = useState("Executive Summary");
 
   const handleGenerateBrief = useCallback(async () => {
     if (isGenerating) return;
@@ -116,7 +118,11 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
       const res = await fetch("/api/generate-brief", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ signals: signals.slice(0, 10) }),
+        body: JSON.stringify({ 
+          signals: signals.slice(0, 10),
+          targetRegion,
+          analysisDepth 
+        }),
       });
 
       if (!res.ok) {
@@ -170,14 +176,44 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
               <span>{error}</span>
             </div>
           )}
+          
+          {/* Advanced Settings */}
+          {!briefData && (
+            <div className="mt-8 flex flex-wrap gap-4 justify-center lg:justify-start">
+              <div className="flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+                <Target className="w-4 h-4 text-luxury-gold" />
+                <select 
+                  className="bg-transparent border-none text-xs font-bold uppercase tracking-widest text-white/80 focus:ring-0 cursor-pointer outline-none"
+                  value={targetRegion}
+                  onChange={(e) => setTargetRegion(e.target.value)}
+                >
+                  <option value="Global" className="bg-luxury-charcoal">Global</option>
+                  <option value="North America" className="bg-luxury-charcoal">North America</option>
+                  <option value="EMEA" className="bg-luxury-charcoal">EMEA</option>
+                  <option value="APAC" className="bg-luxury-charcoal">APAC</option>
+                </select>
+              </div>
+              <div className="flex items-center space-x-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl">
+                <Settings2 className="w-4 h-4 text-luxury-gold" />
+                <select 
+                  className="bg-transparent border-none text-xs font-bold uppercase tracking-widest text-white/80 focus:ring-0 cursor-pointer outline-none"
+                  value={analysisDepth}
+                  onChange={(e) => setAnalysisDepth(e.target.value)}
+                >
+                  <option value="Executive Summary" className="bg-luxury-charcoal">Executive Summary</option>
+                  <option value="Deep Dive" className="bg-luxury-charcoal">Deep Dive Analytics</option>
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="flex flex-col items-center space-y-3">
+        <div className="flex flex-col items-center space-y-3 w-full lg:w-auto">
           {!briefData ? (
             <button
               onClick={handleGenerateBrief}
               disabled={isGenerating}
-              className="px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-all flex items-center space-x-3 shadow-2xl bg-luxury-gold text-luxury-charcoal hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-wait disabled:hover:scale-100"
+              className="w-full lg:w-auto px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-3 shadow-2xl bg-luxury-gold text-luxury-charcoal hover:scale-105 active:scale-95 disabled:opacity-60 disabled:cursor-wait disabled:hover:scale-100"
               aria-busy={isGenerating}
             >
               {isGenerating ? (
@@ -193,21 +229,23 @@ export default function StrategyAI({ signals }: StrategyAIProps) {
               )}
             </button>
           ) : (
-            <button
-              onClick={handleDownload}
-              className="px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-all flex items-center space-x-3 shadow-2xl bg-green-500/20 text-green-400 border border-green-500/30 hover:scale-105 active:scale-95"
-            >
-              <FileText className="w-4 h-4" />
-              <span>Download Report (PDF)</span>
-            </button>
-          )}
-          {briefData && (
-            <button
-              onClick={() => { setBriefData(null); setError(null); }}
-              className="text-[10px] text-white/30 hover:text-white/60 transition-colors uppercase tracking-widest"
-            >
-              Regenerate
-            </button>
+            <div className="flex flex-col space-y-3 w-full">
+              <button
+                onClick={handleDownload}
+                className="w-full px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-3 shadow-2xl bg-green-500/20 text-green-400 border border-green-500/30 hover:bg-green-500/30 active:scale-95"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Download Report (PDF)</span>
+              </button>
+              <button
+                onClick={handleGenerateBrief}
+                disabled={isGenerating}
+                className="w-full px-8 py-4 rounded-full font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center space-x-3 shadow-2xl bg-white/5 text-white border border-white/10 hover:bg-white/10 active:scale-95 disabled:opacity-50"
+              >
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
+                <span>{isGenerating ? "Regenerating..." : "Regenerate Brief"}</span>
+              </button>
+            </div>
           )}
         </div>
       </div>

@@ -57,7 +57,7 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Current Price</span>
-                  <span className="font-mono font-bold text-red-400">$850 (Marked Down)</span>
+                  <span className="font-mono font-bold text-red-400">₹72,000 (Marked Down)</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Color</span>
@@ -77,8 +77,8 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <Tag className="w-32 h-32 text-luxury-gold" />
             </div>
             <div className="relative z-10 border-b border-luxury-gold/20 pb-6">
-              <span className="text-[10px] font-black uppercase tracking-widest text-luxury-gold mb-2 block">Internal Inventory (Olivela)</span>
-              <h2 className="text-2xl font-bold tracking-tighter text-white">Gucci Horsebit Loafer</h2>
+              <span className="text-[10px] font-black uppercase tracking-widest text-luxury-gold mb-2 block">Internal Inventory (Olivela Private Label)</span>
+              <h2 className="text-2xl font-bold tracking-tighter text-white">Olivela Signature Leather Loafer</h2>
               <div className="flex items-center space-x-2 mt-1">
                 <p className="text-luxury-gold/60 text-xs font-mono">SKU: {olivelaSku}</p>
                 <button className="text-luxury-gold hover:text-white transition-colors" aria-label="Copy SKU">
@@ -94,7 +94,7 @@ export default async function MatchSkuPage({ params }: { params: Promise<{ id: s
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Current Price</span>
-                  <span className="font-mono font-bold text-white">$950 (MSRP)</span>
+                  <span className="font-mono font-bold text-white">₹54,000 (High Margin)</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-white/50">Color</span>

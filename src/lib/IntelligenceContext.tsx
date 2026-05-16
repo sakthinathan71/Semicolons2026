@@ -41,25 +41,25 @@ type IntelligenceContextType = {
 // ─── Initial Brand Data ───────────────────────────────────────────────────────
 
 const INITIAL_BRANDS: BrandConfig[] = [
-  { id: "1", name: "Olivela", website: "olivela.com", instagram: "@olivela", isCompetitor: false },
-  { id: "2", name: "Net-a-Porter", website: "net-a-porter.com", instagram: "@netaporter", isCompetitor: true },
-  { id: "3", name: "Farfetch", website: "farfetch.com", instagram: "@farfetch", isCompetitor: true },
-  { id: "4", name: "Mytheresa", website: "mytheresa.com", instagram: "@mytheresa", isCompetitor: true },
-  { id: "5", name: "Saks Fifth Avenue", website: "saksfifthavenue.com", instagram: "@saks", isCompetitor: true },
-  { id: "6", name: "Neiman Marcus", website: "neimanmarcus.com", instagram: "@neimanmarcus", isCompetitor: true },
-  { id: "7", name: "Bergdorf Goodman", website: "bergdorfgoodman.com", instagram: "@bergdorfs", isCompetitor: true },
-  { id: "8", name: "Moda Operandi", website: "modaoperandi.com", instagram: "@modaoperandi", isCompetitor: true },
+  { id: "1", name: "Tata CLiQ Luxury", website: "luxury.tatacliq.com", instagram: "@tatacliqluxury", isCompetitor: false },
+  { id: "2", name: "Pernia's Pop-Up Shop", website: "perniaspopupshop.com", instagram: "@perniaspopupshop", isCompetitor: true },
+  { id: "3", name: "The Collective", website: "thecollective.in", instagram: "@thecollectiveindia", isCompetitor: true },
+  { id: "4", name: "Aza Fashions", website: "azafashions.com", instagram: "@azafashions", isCompetitor: true },
+  { id: "5", name: "Nykaa Luxe", website: "nykaa.com", instagram: "@nykaaluxe", isCompetitor: true },
+  { id: "6", name: "Ensemble India", website: "ensembleindia.com", instagram: "@ensembleindia", isCompetitor: true },
+  { id: "7", name: "Sabyasachi", website: "sabyasachi.com", instagram: "@sabyasachiofficial", isCompetitor: true },
+  { id: "8", name: "Manish Malhotra", website: "manishmalhotra.in", instagram: "@manishmalhotraworld", isCompetitor: true },
 ];
 
 const INITIAL_RECOMMENDATIONS: AIRecommendation[] = [
   {
     id: 1,
-    title: "Inventory Alert: Limited Drops",
-    competitor: "Prada",
+    title: "Inventory Alert: Bridal Season Drops",
+    competitor: "Sabyasachi",
     threat: "Medium",
     action: "Accelerate Capsule Release",
     logic:
-      "Prada's 'Eternal' collection is 80% sold out in 4 hours. Market demand for sustainable leather is peaking. Move our drop forward by 48h to capture the high-intent buyer window.",
+      "Sabyasachi's 'Heritage' collection is 80% sold out in 4 hours. Market demand for premium bridal wear is peaking. Move our drop forward by 48h to capture the high-intent buyer window.",
     urgency: "24 Hours",
   },
 ];
